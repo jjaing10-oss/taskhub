@@ -124,6 +124,36 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .sim-col{color:var(--or2)!important;font-weight:600!important}
 .tbl td.delta-hi{color:var(--gn2)!important}.tbl td.delta-lo{color:var(--rd2)!important}.tbl td.delta-warn{color:var(--or2)!important}
 .link-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(42,53,80,.4);font-size:11px}
+
+/* ── 탑다운 패널 ── */
+.topdown-panel{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(139,92,246,.05));border:2px solid rgba(59,130,246,.3);border-radius:10px;padding:14px;margin-bottom:16px}
+.topdown-panel .td-title{font-size:13px;font-weight:700;color:var(--ac2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.topdown-panel .auto-val{font-family:'JetBrains Mono',monospace;color:var(--gn2);font-size:14px;font-weight:700;letter-spacing:-.5px}
+.td-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(59,130,246,.2)}
+.td-grid div{background:rgba(16,185,129,.06);border-radius:6px;padding:6px 10px}
+.td-grid .lb2{font-size:10px;color:var(--t3);margin-bottom:2px}
+
+/* ── 월별 편집 그리드 ── */
+.mon-section{margin-top:8px}
+.mon-toggle-btn{font-size:10px;padding:2px 9px;border:1px solid var(--bd);border-radius:4px;background:var(--s3);color:var(--or2);cursor:pointer;font-family:inherit;margin-top:4px;transition:.15s}
+.mon-toggle-btn:hover{border-color:var(--or);background:rgba(245,158,11,.08)}
+.mon-toggle-btn.open{border-color:var(--or);background:rgba(245,158,11,.1);color:var(--or)}
+.mon-grid{overflow-x:auto;margin-top:6px;padding:8px;background:rgba(30,40,60,.4);border:1px solid var(--bd);border-radius:6px;display:none}
+.mon-grid.open{display:block}
+.mon-grid table{border-collapse:collapse;font-size:10px;min-width:760px}
+.mon-grid th{background:var(--s3);padding:3px 5px;text-align:center;color:var(--t2);font-size:9px;white-space:nowrap}
+.mon-grid th:first-child{text-align:left;min-width:90px}
+.mon-grid td{padding:2px 2px;text-align:center}
+.mon-grid td input.mi{width:58px;padding:2px 3px;border:1px solid var(--bd);border-radius:3px;background:var(--s2);color:var(--t1);font-family:'JetBrains Mono',monospace;font-size:10px;text-align:right;outline:none}
+.mon-grid td input.mi:focus{border-color:var(--ac)}
+.mon-grid td input.mi.manual{border-color:var(--or2);color:var(--or2);background:rgba(245,158,11,.06)}
+.mon-grid .col-tot{font-weight:700;color:var(--ac2);font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 5px;white-space:nowrap}
+.mon-grid .row-tot{background:rgba(59,130,246,.06)}
+.mon-grid .row-tot td{font-weight:700;color:var(--ac2)}
+.mon-grid-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.mon-grid-hdr span{font-size:10px;color:var(--t3)}
+.mon-reset-btn{font-size:9px;padding:1px 6px;border:1px solid var(--bd);border-radius:3px;background:var(--s3);color:var(--t3);cursor:pointer}
+.mon-reset-btn:hover{color:var(--gn2);border-color:var(--gn)}
 </style>
 </head>
 <body>
@@ -163,6 +193,42 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <div id="sheet_pl" class="sheet active">
 <div class="cols">
 <div class="inp-panel">
+
+  <!-- ============================================================ -->
+  <!-- 🎯 경영진 확정 목표 — 탑다운 드라이버 패널 -->
+  <!-- ============================================================ -->
+  <div class="topdown-panel">
+    <div class="td-title">🎯 경영진 확정 목표
+      <span style="font-size:10px;color:var(--t3);font-weight:400">3개 값 입력 → 손익 전체 역산</span>
+    </div>
+    <div class="ig">
+      <div class="ig-l">전사 CAPA <span class="h">25년=642,934 / 추출기준 670,000</span></div>
+      <div class="ir"><input type="text" id="td_capa" class="if mono" value="670,000" onchange="applyTopDown()"><span class="iu">건</span></div>
+      <input type="range" id="tds_capa" min="500000" max="900000" step="1000" value="670000" oninput="sv('td_capa',+this.value);applyTopDown()">
+    </div>
+    <div class="ig">
+      <div class="ig-l">전사 매출 <span class="h">25년=753,458 / 26E=816,287</span></div>
+      <div class="ir"><input type="text" id="td_rev" class="if mono" value="816,287" onchange="applyTopDown()"><span class="iu">백만원</span></div>
+      <input type="range" id="tds_rev" min="700000" max="950000" step="1000" value="816287" oninput="sv('td_rev',+this.value);applyTopDown()">
+    </div>
+    <div class="ig">
+      <div class="ig-l">전사 영업이익 <span class="h">25년=16,341 / 26E=17,151</span></div>
+      <div class="ir"><input type="text" id="td_op" class="if mono" value="17,151" onchange="applyTopDown()"><span class="iu">백만원</span></div>
+      <input type="range" id="tds_op" min="-10000" max="40000" step="100" value="17151" oninput="sv('td_op',+this.value);applyTopDown()">
+    </div>
+    <div class="td-grid">
+      <div><div class="lb2">영업이익률 (자동계산)</div><div class="auto-val" id="td_opm_disp">2.1%</div></div>
+      <div><div class="lb2">매출총이익 (역산)</div><div class="auto-val" id="td_gp_disp">260,825</div></div>
+      <div><div class="lb2">매출원가 (역산)</div><div class="auto-val" id="td_cogs_disp">555,462</div></div>
+      <div><div class="lb2">판관비 (역산)</div><div class="auto-val" id="td_sga_disp">243,674</div></div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn pri" onclick="applyTopDown(true)" style="font-size:11px;padding:4px 12px">🔄 역산값 각 탭 반영</button>
+      <button class="btn" onclick="resetTopDown()" style="font-size:11px;padding:4px 12px">↩ 기본값 초기화</button>
+    </div>
+  </div>
+  <!-- /탑다운 패널 -->
+
   <div class="sec">📡 통신 — 비연동 비용</div>
   <div class="help">🔗 항목은 무선/유선/인건비 탭 자동 연동 · ✏️ 항목은 직접 입력</div>
   <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:7px;padding:8px 12px;margin:8px 0;font-size:11px;color:var(--or2)">
@@ -206,6 +272,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="dv"></div>
   <div class="sec">🔗 연동 현황</div>
   <div id="pl2_link_status"></div>
+  <div class="dv"></div>
+  <div class="sec">📅 월별 손익 직접조정 <span style="font-size:10px;color:var(--t3);font-weight:400">(작업G · 선택적 수동 가감)</span></div>
+  <div class="help">시뮬 결과에 월별 +/- 조정값을 가산합니다. 각 항목 연간합 = 0이면 무효 처리.</div>
+  <div class="mon-section" style="margin-top:8px">
+    <button class="mon-toggle-btn" id="btn_pl_adj_mon" onclick="toggleMonGrid('mon_pl_adj','btn_pl_adj_mon');if(document.getElementById('mon_pl_adj').classList.contains('open'))buildMonGridPlAdj()">📅 월별조정 펼치기 ▾</button>
+    <div class="mon-grid" id="mon_pl_adj"></div>
+  </div>
 </div>
 
 <div class="out-panel">
@@ -253,6 +326,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="dv"></div>
   <div class="sec">💰 객관리수수료 단가 (원/월)</div>
   <div class="ch-grid" id="fee_grid"></div>
+  <div class="mon-section" style="margin-top:6px">
+    <button class="mon-toggle-btn" id="btn_wf_mon" onclick="toggleMonGrid('mon_wf','btn_wf_mon');if(document.getElementById('mon_wf').classList.contains('open'))buildMonGridWFee()">📅 채널별 월별단가 ▾</button>
+    <div class="mon-grid" id="mon_wf"></div>
+  </div>
 
   <div class="dv"></div>
   <div class="sec">📊 만기도래해지 비중 (Active 대비 월간 %)</div>
@@ -266,9 +343,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="sec">📦 상품매출 / 원가 / 정책수수료</div>
   <div class="help">전사 CAPA × 대당 단가로 자동 산출. 단가 조정 가능.</div>
   <div style="margin-top:8px">
-    <div class="ig"><div class="ig-l">대당매출단가 <span class="h">26E기준 708,268원</span></div><div class="ir"><input type="text" id="w_pu" class="if mono" value="708,268" onchange="runW()"><span class="iu">원/건</span></div></div>
-    <div class="ig"><div class="ig-l">대당원가단가 <span class="h">26E기준 760,673원</span></div><div class="ir"><input type="text" id="w_cu" class="if mono" value="760,673" onchange="runW()"><span class="iu">원/건</span></div></div>
-    <div class="ig"><div class="ig-l">대당정책수수료 <span class="h">26E기준 247,338원</span></div><div class="ir"><input type="text" id="w_pu_pol" class="if mono" value="247,339" onchange="runW()"><span class="iu">원/건</span></div></div>
+    <div class="ig"><div class="ig-l">대당매출단가 <span class="h">26E기준 708,268원</span></div><div class="ir"><input type="text" id="w_pu" class="if mono" value="708,268" onchange="syncWUnitMon('pu');runW()"><span class="iu">원/건</span></div></div>
+    <div class="mon-section">
+      <button class="mon-toggle-btn" id="btn_w_pu_mon" onclick="toggleMonGrid('mon_w_pu','btn_w_pu_mon');if(document.getElementById('mon_w_pu').classList.contains('open'))buildMonGridWPu()">📅 월별단가 ▾</button>
+      <div class="mon-grid" id="mon_w_pu"></div>
+    </div>
+    <div class="ig"><div class="ig-l">대당원가단가 <span class="h">26E기준 760,673원</span></div><div class="ir"><input type="text" id="w_cu" class="if mono" value="760,673" onchange="syncWUnitMon('cu');runW()"><span class="iu">원/건</span></div></div>
+    <div class="mon-section">
+      <button class="mon-toggle-btn" id="btn_w_cu_mon" onclick="toggleMonGrid('mon_w_cu','btn_w_cu_mon');if(document.getElementById('mon_w_cu').classList.contains('open'))buildMonGridWCu()">📅 월별단가 ▾</button>
+      <div class="mon-grid" id="mon_w_cu"></div>
+    </div>
+    <div class="ig"><div class="ig-l">대당정책수수료 <span class="h">26E기준 247,338원</span></div><div class="ir"><input type="text" id="w_pu_pol" class="if mono" value="247,339" onchange="syncWUnitMon('pol');runW()"><span class="iu">원/건</span></div></div>
+    <div class="mon-section">
+      <button class="mon-toggle-btn" id="btn_w_pol_mon" onclick="toggleMonGrid('mon_w_pol','btn_w_pol_mon');if(document.getElementById('mon_w_pol').classList.contains('open'))buildMonGridWPol()">📅 월별단가 ▾</button>
+      <div class="mon-grid" id="mon_w_pol"></div>
+    </div>
   </div>
 
   <div class="dv"></div>
@@ -278,10 +367,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="ig"><div class="ig-l">판매수수료 <span class="h">25년=15,428 / 26E=16,897</span></div><div class="ir"><input type="text" id="w_sc_ann" class="if mono" value="16,897" onchange="runW()"><span class="iu">백만원</span></div>
       <input type="range" id="ws_sc_ann" min="10000" max="25000" step="100" value="16897">
     </div>
-    <div class="ig"><div class="ig-l">판촉비(마케팅) <span class="h">25년=27,165 / 26E=20,381</span></div><div class="ir"><input type="text" id="w_sp" class="if mono" value="20,381" onchange="runW()"><span class="iu">백만원</span></div>
-      <input type="range" id="ws_sp" min="5000" max="40000" step="100" value="20381">
+    <div class="ig"><div class="ig-l">판촉비(마케팅) <span class="h">25년=28,784 / 26E=28,060</span></div><div class="ir"><input type="text" id="w_sp" class="if mono" value="28,060" onchange="runW()"><span class="iu">백만원</span></div>
+      <input type="range" id="ws_sp" min="10000" max="45000" step="100" value="28060">
     </div>
-    <div class="ig"><div class="ig-l">판촉비(사업) <span class="h">25년=1,578 / 26E=6,653</span></div><div class="ir"><input type="text" id="w_sp_biz" class="if mono" value="6,653" onchange="runW()"><span class="iu">백만원</span></div></div>
+    <div class="ig"><div class="ig-l">판촉비(사업) <span class="h">25년=1,578 / 유선+기타 합산분</span></div><div class="ir"><input type="text" id="w_sp_biz" class="if mono" value="0" onchange="runW()"><span class="iu">백만원</span></div></div>
     <div class="ig"><div class="ig-l">광고선전비 <span class="h">25년=622 / 26E=630</span></div><div class="ir"><input type="text" id="w_adv" class="if mono" value="630" onchange="runW()"><span class="iu">백만원</span></div></div>
     <div class="ig" style="opacity:.5"><div class="ig-l">인센티브(복리포인트) <span class="h">→ 별도 관리지표 (P&L 비용 이중계산 없음)</span></div><div class="ir"><input type="text" id="w_inc" class="if mono" value="11,578" onchange="runW()"><span class="iu">백만원</span></div></div>
     <div class="ig" style="opacity:.5"><div class="ig-l">회의비(마케팅) <span class="h">→ 기타운영비탭 포함</span></div><div class="ir"><input type="text" id="w_mtg" class="if mono" value="2,261" onchange="runW()"><span class="iu">백만원</span></div></div>
@@ -350,9 +439,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="ig-l">일반직 <span class="h">25년 인당 95.4백만/연 (795만원/월)</span></div>
     <div class="ir"><input type="text" id="lb_gen_base" class="if mono" value="795" onchange="runLB()"><span class="iu">만원/월</span></div>
   </div>
+  <div class="mon-section">
+    <button class="mon-toggle-btn" id="btn_lb_gen_mon" onclick="toggleMonGrid('mon_lb_gen','btn_lb_gen_mon');if(document.getElementById('mon_lb_gen').classList.contains('open'))buildMonGridLbGen()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_lb_gen"></div>
+  </div>
   <div class="ig">
     <div class="ig-l">영업직 <span class="h">25년 인당 37.6백만/연 (313만원/월)</span></div>
     <div class="ir"><input type="text" id="lb_sal_base" class="if mono" value="313" onchange="runLB()"><span class="iu">만원/월</span></div>
+  </div>
+  <div class="mon-section">
+    <button class="mon-toggle-btn" id="btn_lb_sal_mon" onclick="toggleMonGrid('mon_lb_sal','btn_lb_sal_mon');if(document.getElementById('mon_lb_sal').classList.contains('open'))buildMonGridLbSal()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_lb_sal"></div>
   </div>
   <div class="ig">
     <div class="ig-l">일반직 12월 상여 비율 <span class="h">25년 실적 기준</span></div>
@@ -380,7 +477,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="dv"></div>
   <div class="sec">📋 퇴직급여 / 복리후생 / 포상비</div>
   <div class="ig" style="margin-top:8px">
-    <div class="ig-l">퇴직급여 연간 <span class="h">25년=10,264 / 26E=11,914</span></div>
+    <div class="ig-l">퇴직급여 연간 <span class="h">25년=10,264 / 26E=11,914 (통신기준)</span></div>
     <div class="ir"><input type="text" id="lb_retire" class="if mono" value="11,914" onchange="runLB()"><span class="iu">백만</span></div>
     <input type="range" id="lbs_retire" min="8000" max="16000" step="100" value="11914">
   </div>
@@ -389,8 +486,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="ir"><input type="text" id="lb_retire_dec" class="if mono" value="33" onchange="runLB()"><span class="iu">%</span></div>
   </div>
   <div class="ig">
-    <div class="ig-l">복리후생비 연간 <span class="h">25년=32,484 / 26E=32,102 (통신기준)</span></div>
-    <div class="ir"><input type="text" id="lb_welfare" class="if mono" value="32,102" onchange="syncWelfare()" style="background:rgba(59,130,246,.08)"><span class="iu">백만 (합계자동)</span></div>
+    <div class="ig-l">복리후생비 연간 <span class="h">25년=32,484 / 26E=34,407 (전사기준)</span></div>
+    <div class="ir"><input type="text" id="lb_welfare" class="if mono" value="34,407" onchange="syncWelfare()" style="background:rgba(59,130,246,.08)"><span class="iu">백만 (합계자동)</span></div>
+  </div>
+  <div class="mon-section">
+    <button class="mon-toggle-btn" id="btn_lb_welfare_mon" onclick="toggleMonGrid('mon_lb_welfare','btn_lb_welfare_mon');if(document.getElementById('mon_lb_welfare').classList.contains('open'))buildMonGridLbWelfare()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_lb_welfare"></div>
   </div>
   <div style="background:rgba(30,40,60,.4);border:1px solid var(--bd);border-radius:6px;padding:8px 10px;margin:4px 0 6px;font-size:12px">
     <div style="color:var(--t3);margin-bottom:6px;font-size:11px">↳ 구성 항목 (합계 = 복리후생비)</div>
@@ -408,15 +509,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     </div>
     <div class="ig" style="margin:3px 0">
       <div class="ig-l" style="font-size:12px;color:var(--ac2)">고정성</div>
-      <div class="ir"><input type="text" id="lb_welfare_fixed" class="if mono" value="32,102" onchange="syncWelfare()" style="color:var(--ac2)"><span class="iu">백만</span></div>
+      <div class="ir"><input type="text" id="lb_welfare_fixed" class="if mono" value="34,407" onchange="syncWelfare()" style="color:var(--ac2)"><span class="iu">백만</span></div>
     </div>
     <div style="border-top:1px solid var(--bd);margin-top:5px;padding-top:4px;display:flex;justify-content:space-between;color:var(--t3)">
-      <span>합계</span><span id="lb_welfare_sum" style="color:var(--ac2);font-family:monospace">32,102</span>
+      <span>합계</span><span id="lb_welfare_sum" style="color:var(--ac2);font-family:monospace">34,407</span>
     </div>
   </div>
   <div class="ig">
     <div class="ig-l">포상비 연간 <span class="h">25년=699 / 26E=710</span></div>
     <div class="ir"><input type="text" id="lb_reward" class="if mono" value="710" onchange="runLB()"><span class="iu">백만</span></div>
+    <input type="range" id="lbs_reward" min="400" max="1200" step="50" value="710">
+  </div>
+  <div class="mon-section">
+    <button class="mon-toggle-btn" id="btn_lb_reward_mon" onclick="toggleMonGrid('mon_lb_reward','btn_lb_reward_mon');if(document.getElementById('mon_lb_reward').classList.contains('open'))buildMonGridLbReward()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_lb_reward"></div>
   </div>
 </div>
 
@@ -505,9 +611,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   <div class="dv"></div>
   <div class="sec">📋 정책수수료 / 인센티브 / 판촉비</div>
-  <div class="ig"><div class="ig-l">정책수수료 합계 <span class="h">25년=14,007</span></div><div class="ir"><input type="text" id="wl_pol" class="if mono" value="11,369" onchange="runWL()"><span class="iu">백만원</span></div></div>
+  <div class="ig"><div class="ig-l">정책수수료 합계 <span class="h">25년=14,007 / 26E=11,369</span></div><div class="ir"><input type="text" id="wl_pol" class="if mono" value="11,369" onchange="runWL()"><span class="iu">백만원</span></div></div>
+  <div class="mon-section">
+    <button class="mon-toggle-btn" id="btn_wl_pol_mon" onclick="toggleMonGrid('mon_wl_pol','btn_wl_pol_mon');if(document.getElementById('mon_wl_pol').classList.contains('open'))buildMonGridWlPol()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_wl_pol"></div>
+  </div>
   <div class="ig"><div class="ig-l">인센티브(복리포인트) <span class="h">25년=5,206</span></div><div class="ir"><input type="text" id="wl_inc" class="if mono" value="4,677" onchange="runWL()"><span class="iu">백만원</span></div></div>
-  <div class="ig"><div class="ig-l">판촉비 <span class="h">25년=41</span></div><div class="ir"><input type="text" id="wl_prm" class="if mono" value="98" onchange="runWL()"><span class="iu">백만원</span></div></div>
+  <div class="ig"><div class="ig-l">판촉비 <span class="h">25년=41 / 26E=98</span></div><div class="ir"><input type="text" id="wl_prm" class="if mono" value="98" onchange="runWL()"><span class="iu">백만원</span></div></div>
+  <div class="mon-section">
+    <button class="mon-toggle-btn" id="btn_wl_prm_mon" onclick="toggleMonGrid('mon_wl_prm','btn_wl_prm_mon');if(document.getElementById('mon_wl_prm').classList.contains('open'))buildMonGridWlPrm()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_wl_prm"></div>
+  </div>
 </div>
 <div class="out-panel" id="wl_out"></div>
 </div>
@@ -526,11 +640,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   <div class="dv"></div>
   <div class="sec">🏗 건물임차료</div>
-  <div class="help">소매매장+도매센터+본사/지사 합산 (소스: 인프라시트 행26 / 25년=4,374)</div>
+  <div class="help">소매매장+도매센터+본사/지사 합산 (소스: 인프라시트 / 25년=4,374 / 26E임차료합계=4,462)</div>
   <div class="ig" style="margin-top:8px">
-    <div class="ig-l">건물임차료 합계 <span class="h">25년=4,374 / 26E=4,462</span></div>
+    <div class="ig-l">건물임차료 합계 <span class="h">25년=4,374 / 26E=4,462 (임차료) / 임차관리비합계=4,403</span></div>
     <div class="ir"><input type="text" id="if_building" class="if mono" value="4,462" onchange="runIF()"><span class="iu">백만/연</span></div>
     <input type="range" id="ifs_building" min="3000" max="6000" step="50" value="4462">
+  </div>
+  <div class="mon-section">
+    <button class="mon-toggle-btn" id="btn_if_rent_mon" onclick="toggleMonGrid('mon_if_rent','btn_if_rent_mon');if(document.getElementById('mon_if_rent').classList.contains('open'))buildMonGridIfRent()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_if_rent"></div>
   </div>
   <div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:6px;padding:6px 10px;font-size:10px;color:var(--t3);margin-top:4px">
     매장수 추이는 🏪 매장 추이 탭에서 참고 가능 (소매 251→270개, 도매 42→34개)
@@ -600,9 +718,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="sec">🏗 시설장치 (유형자산)</div>
   <div class="help">기존 자산 잔여상각 + 신규 CAPEX → 분기말(3·6·9·12월) 처리</div>
   <div class="ig" style="margin-top:8px">
-    <div class="ig-l">기존 잔여상각 기저 <span class="h">26E 소스=5,565 / 25년=5,731</span></div>
-    <div class="ir"><input type="text" id="dp_tang_base" class="if mono" value="5,565" onchange="runDEP()"><span class="iu">백만/연</span></div>
-    <input type="range" id="dps_tang_base" min="2000" max="9000" step="100" value="5565">
+    <div class="ig-l">기존 잔여상각 기저 <span class="h">26E 소스=5,602 / 25년=5,731</span></div>
+    <div class="ir"><input type="text" id="dp_tang_base" class="if mono" value="5,602" onchange="runDEP()"><span class="iu">백만/연</span></div>
+    <input type="range" id="dps_tang_base" min="2000" max="9000" step="100" value="5602">
+  </div>
+  <div class="mon-section" style="margin-top:6px">
+    <button class="mon-toggle-btn" id="btn_dep_tang_mon" onclick="toggleMonGrid('mon_dep_tang','btn_dep_tang_mon');if(document.getElementById('mon_dep_tang').classList.contains('open'))buildMonGridDepTang()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_dep_tang"></div>
   </div>
   <div class="dv" style="margin:8px 0 6px"></div>
   <div style="font-size:11px;color:var(--or2);margin-bottom:6px">📦 신규 CAPEX 투자 (시설장치)</div>
@@ -621,6 +743,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="ig-l">기존 잔여상각 기저 <span class="h">26E 소스=434 / 25년=248</span></div>
     <div class="ir"><input type="text" id="dp_sw_base" class="if mono" value="434" onchange="runDEP()"><span class="iu">백만/연</span></div>
     <input type="range" id="dps_sw_base" min="0" max="800" step="10" value="434">
+  </div>
+  <div class="mon-section" style="margin-top:6px">
+    <button class="mon-toggle-btn" id="btn_dep_sw_mon" onclick="toggleMonGrid('mon_dep_sw','btn_dep_sw_mon');if(document.getElementById('mon_dep_sw').classList.contains('open'))buildMonGridDepSw()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_dep_sw"></div>
   </div>
   <div class="dv" style="margin:8px 0 6px"></div>
   <div style="font-size:11px;color:var(--ac2);margin-bottom:6px">💡 신규 CAPEX 투자 (IT·소프트웨어)</div>
@@ -700,7 +826,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   <div class="dv"></div>
   <div class="sec">☕ 회의비 (연간, 백만원)</div>
-  <div class="help">25년=6,253 / 26E소스=6,415 — 12월 연말 집중 패턴</div>
+  <div class="help">25년=6,253 / 26E=6,415 — 12월 연말 집중 패턴
+    <button class="mon-toggle-btn" id="btn_ox_mtg_mon" style="margin-left:8px" onclick="toggleMonGrid('mon_ox_mtg','btn_ox_mtg_mon');if(document.getElementById('mon_ox_mtg').classList.contains('open'))buildMonGridOxMtg()">📅 월별편집 ▾</button>
+  </div>
+  <div class="mon-grid" id="mon_ox_mtg"></div>
   <div style="margin-top:8px">
     <div class="ig"><div class="ig-l">회의비(기본) <span class="h">25=1,288 / 26E=1,090</span></div>
       <div class="ir"><input type="text" id="ox_mtg_base" class="if mono" value="1,090" onchange="runOX()"><span class="iu">백만</span></div>
@@ -723,7 +852,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 
   <div class="dv"></div>
   <div class="sec">📦 기타 운영비 9개 항목</div>
-  <div class="help">세금과공과: 8월 집중(재산세) / 나머지: 균등배분</div>
+  <div class="help">세금과공과: 8월 집중(재산세) / 나머지: 균등배분
+    <button class="mon-toggle-btn" id="btn_ox_etc_mon" style="margin-left:8px" onclick="toggleMonGrid('mon_ox_etc','btn_ox_etc_mon');if(document.getElementById('mon_ox_etc').classList.contains('open'))buildMonGridOxEtc()">📅 월별편집 ▾</button>
+  </div>
+  <div class="mon-grid" id="mon_ox_etc"></div>
   <div style="margin-top:8px">
     <div class="ig"><div class="ig-l">운반비 <span class="h">25=4,731 / 26E=4,873</span></div>
       <div class="ir"><input type="text" id="ox_trans" class="if mono" value="4,873" onchange="runOX()"><span class="iu">백만</span></div>
@@ -1201,6 +1333,65 @@ const W_POL26_MON=[12341,11315,16543,12594,12662,12209,17935,13238,17578,14036,1
 const W_POL26_TOT=W_POL26_MON.reduce((a,b)=>a+b,0);
 const W_POL26_SEASON=W_POL26_MON.map(v=>v/W_POL26_TOT);
 
+// ============================================================
+// 2026E 경영계획 확정값 (소스: 엑셀 직접 추출)
+// ============================================================
+const PLAN_2026={
+  매출:816287, 상품매출:530096, 수수료수입:286191,
+  정책수수료:180215, 관리수수료:57976, 기타수수료:47999,
+  매출원가:555462, 매출총이익:260825,
+  인건비:147785, 마케팅비용:45587, 판매수수료:16897, 판촉비:28060, 광고:630,
+  임차관리비:5474, 감가상각비:6036, 기타운영비:38791, 영업이익:17151,
+};
+
+// 2026E 월별 소스 (extracted_data.json)
+const CORP_MON_2026={
+  매출:      [58137,56459,95513,62511,62580,58768,80075,63743,92502,66325,59666,60008],
+  매출원가:  [37587,36531,72631,41436,41671,37001,56205,42792,67456,44501,39765,37886],
+  인건비:    [11029,11230,11561,11286,11142,12326,11364,11728,16106,11904,11561,16550],
+  마케팅비용:[3283,2924,3501,3393,3416,4108,4074,3368,4592,4225,4383,4319],
+  임차관리비:[992,998,-626,998,999,-634,998,998,-626,1003,1003,-630],
+  감가상각비:[38,38,1383,43,43,1388,43,43,1404,90,90,1431],
+  기타운영비:[3108,3002,3158,3023,3033,3024,3197,3149,3242,3100,3474,4283],
+  영업이익:  [2100,1736,3906,2331,2276,1556,4195,1664,328,1501,-612,-3830],
+  판촉비:    [2006,1919,2072,1851,1854,2540,2475,1899,2879,2425,2816,3324],
+  판매수수료:[1224,952,1377,1490,1510,1516,1546,1416,1661,1748,1515,942],
+  광고:      [53,53,53,53,53,53,53,53,53,53,53,53],
+};
+
+// 탭다운 역산 비율 상수 (26E 기준)
+const TD_RATIOS={
+  cogs_r:  555462/816287,   // 원가율 68.07%
+  labor_r: 147785/243674,   // 판관비 대비 인건비 60.65%
+  dep_r:   6036/243674,     // 감가상각 2.48%
+  rent_r:  5474/243674,     // 임차 2.25%
+  mkt_r:   45587/243674,    // 마케팅 18.71%
+  opex_r:  38791/243674,    // 기타운영비 15.92%
+};
+
+// 채널별 CAPA 비중 (26E 기준)
+const W_CAPA_26_TOTAL=670000;
+const W_CAPA_CH_SHARE=W_CH.map((ch,i)=>W_CAPA_26[i]/W_CAPA_26_TOTAL);
+
+// ============================================================
+// 월별 직접편집 상태 관리
+// ============================================================
+const MON_MANUAL={
+  capa:  Object.fromEntries(W_CH.map(ch=>[ch,Array(12).fill(null)])),
+  pu:    Array(12).fill(null), cu:   Array(12).fill(null),
+  pol_u: Array(12).fill(null),fee_u: Object.fromEntries(W_CH.map(ch=>[ch,Array(12).fill(null)])),
+  labor_gen: Array(12).fill(null), labor_sal: Array(12).fill(null),
+  welfare:   Array(12).fill(null), retire:    Array(12).fill(null),
+  reward:    Array(12).fill(null), bonus:     Array(12).fill(null),
+  opex:  {}, infra: {}, dep: {},
+};
+// 월별 단가 상태 (null=연간단가 균등, 숫자=직접입력)
+const W_UNIT_MON={
+  pu:  Array(12).fill(708268),
+  cu:  Array(12).fill(760673),
+  pol: Array(12).fill(247338),
+};
+
 // 기타 수수료 — 26E 소스 월별 패턴 포함 (균등 배분 대신 실제 증감 패턴 사용)
 const W_ETC_DEF=[
   {id:'hc_dom', label:'도매 H/C (2%)',    v25:3968,  v26:2956,  isChannel:false,
@@ -1252,6 +1443,330 @@ function switchPLTab(tab){
     if(el)el.classList.toggle('active',t===tab);
   });
   renderPL();
+}
+
+// ============================================================
+// 탑다운 드라이버 — 경영진 목표 → 손익 역산
+// ============================================================
+function applyTopDown(updateSubInputs){
+  const capa = pv('td_capa') || 670000;
+  const rev  = pv('td_rev')  || 816287;
+  const op   = pv('td_op')   || 17151;
+
+  const cogs = Math.round(rev * TD_RATIOS.cogs_r);
+  const gp   = rev - cogs;
+  const sga  = gp - op;
+  const opm  = op / rev;
+
+  // 슬라이더 동기화
+  const syncS=(sid,v)=>{const s=document.getElementById(sid);if(s)s.value=Math.round(v)};
+  syncS('tds_capa',capa); syncS('tds_rev',rev); syncS('tds_op',op);
+
+  // 역산 표시 업데이트
+  const disp=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=typeof v==='number'?fmt(Math.round(v)):v;};
+  disp('td_opm_disp',(opm*100).toFixed(1)+'%');
+  disp('td_gp_disp',gp); disp('td_cogs_disp',cogs); disp('td_sga_disp',sga);
+
+  if(updateSubInputs){
+    // CAPA: 채널별 비례 스케일링
+    const capaRatio = capa / W_CAPA_26_TOTAL;
+    W_CH.forEach((ch,i)=>{
+      const newCapa = Math.round(W_CAPA_26[i] * capaRatio);
+      sv('wc_'+i, newCapa);
+    });
+    // 인건비: 임단협 드라이버 그대로 두고 총액 힌트만 업데이트
+    // 기타운영비: 비례 조정 (opex_r 기반)
+    const opexNew = Math.round(sga * TD_RATIOS.opex_r);
+    const opexRatio = opexNew / 34718; // 통신 기준 기타운영비
+    if(opexRatio > 0.5 && opexRatio < 2.0){
+      // 지급수수료 그룹 비례 조정
+      ['ox_it','ox_svc','ox_consult','ox_sec','ox_const','ox_agency','ox_dispatch','ox_fee_etc'].forEach(id=>{
+        const cur=pv(id); if(cur>0) sv(id,Math.round(cur*opexRatio));
+      });
+    }
+    // 결과 알림
+    alert(`탑다운 역산 적용 완료\n매출: ${fmt(Math.round(rev))} | 영업이익: ${fmt(Math.round(op))} | 영업이익률: ${(opm*100).toFixed(1)}%\n매출원가: ${fmt(cogs)} | 판관비: ${fmt(sga)}`);
+  }
+
+  runPL();
+}
+
+function resetTopDown(){
+  sv('td_capa',670000); sv('td_rev',816287); sv('td_op',17151);
+  applyTopDown(false);
+}
+
+// ============================================================
+// 월별 편집 그리드 공통 토글/빌드 함수
+// ============================================================
+function toggleMonGrid(gridId, btnId){
+  const grid=document.getElementById(gridId);
+  const btn=document.getElementById(btnId);
+  if(!grid) return;
+  const isOpen=grid.classList.contains('open');
+  grid.classList.toggle('open',!isOpen);
+  if(btn) btn.classList.toggle('open',!isOpen);
+  if(btn) btn.textContent=(!isOpen?'📅 월별편집 ▴':'📅 월별편집 ▾');
+}
+
+// 월별 그리드 빌드: items=[{key,label,vals,ann}], gridId, onchange, resetFn
+function buildMonGrid(gridId, items, onchangeFn, resetFn){
+  const MN=['1','2','3','4','5','6','7','8','9','10','11','12'];
+  let html=`<div class="mon-grid-hdr"><span>${items.length}개 항목 · 수정 셀은 오렌지색 표시</span>`;
+  if(resetFn) html+=`<button class="mon-reset-btn" onclick="${resetFn}()">🔄 자동배분 초기화</button>`;
+  html+=`</div><table><thead><tr><th>항목</th>`;
+  MN.forEach(m=>html+=`<th>${m}월</th>`);
+  html+=`<th>합계</th></tr></thead><tbody>`;
+  items.forEach(item=>{
+    const tot=item.vals.reduce((a,b)=>a+b,0);
+    html+=`<tr><td style="padding:2px 6px;color:var(--t2);font-size:10px">${item.label}</td>`;
+    item.vals.forEach((v,m)=>{
+      const isM=item.manual&&item.manual[m]!=null;
+      html+=`<td><input class="mi${isM?' manual':''}" type="text" id="${item.key}_m${m}" value="${v<0?v:Math.round(v).toLocaleString()}" onchange="${onchangeFn}('${item.key}',${m},this)"></td>`;
+    });
+    html+=`<td class="col-tot" id="${item.key}_mtot">${fmt(Math.round(tot))}</td></tr>`;
+  });
+  html+=`</tbody></table>`;
+  const el=document.getElementById(gridId);
+  if(el) el.innerHTML=html;
+}
+
+// 월별 셀 변경 시 합계 갱신 공통 함수
+function onMonCellChange(key, m, el, runFn){
+  const v=parseInt(el.value.replace(/,/g,''))||0;
+  el.classList.add('manual');
+  // 합계 재계산
+  let sum=0;
+  for(let i=0;i<12;i++){
+    const ce=document.getElementById(`${key}_m${i}`);
+    sum+=ce?parseInt(ce.value.replace(/,/g,''))||0:0;
+  }
+  const totEl=document.getElementById(`${key}_mtot`);
+  if(totEl) totEl.textContent=fmt(sum);
+  if(runFn) runFn();
+}
+
+// ─── 월별 그리드 빌더 함수들 ─────────────────────────────────────────────
+// 작업 C — 관리수수료 단가 채널별 월별 편집
+// W_FEE_DEF 채널: 도매, 소매, 소상공인, 디지털, 기업, Biz
+function onWFeeChange(key,m,el){
+  // key 형식: wf_<채널>_m  → 채널 추출
+  const ch=key.replace(/^wf_(.+)_m$/,'$1');
+  const v=parseInt(el.value.replace(/,/g,''))||0;
+  el.classList.add('manual');
+  if(!MON_MANUAL.fee_u[ch]) MON_MANUAL.fee_u[ch]=Array(12).fill(null);
+  MON_MANUAL.fee_u[ch][m]=v;
+  onMonCellChange(key,m,el,runW);
+}
+function resetWFeeMon(){
+  Object.keys(W_FEE_DEF).forEach(ch=>{ MON_MANUAL.fee_u[ch]=Array(12).fill(null); });
+  buildMonGridWFee(); runW();
+}
+function buildMonGridWFee(){
+  const items=Object.entries(W_FEE_DEF).map(([ch,defAnn])=>{
+    if(!MON_MANUAL.fee_u[ch]) MON_MANUAL.fee_u[ch]=Array(12).fill(null);
+    const annVal=pv('wf_'+ch)||defAnn;
+    const vals=Array(12).fill(0).map((_,i)=>MON_MANUAL.fee_u[ch][i]!=null?MON_MANUAL.fee_u[ch][i]:annVal);
+    return {key:`wf_${ch}_m`, label:`${ch} (원/월)`, vals, manual:MON_MANUAL.fee_u[ch]};
+  });
+  buildMonGrid('mon_wf', items, 'onWFeeChange', 'resetWFeeMon');
+}
+
+// 작업 F — 감가상각 기저 월별 편집
+// 유형자산 (DEP_TANG_SEASON 패턴: 분기말 집중)
+function onDepTangChange(key,m,el){ onMonCellChange(key,m,el,runDEP); }
+function onDepSwChange(key,m,el){   onMonCellChange(key,m,el,runDEP); }
+function resetDepTangMon(){ if(!MON_MANUAL.dep)MON_MANUAL.dep={}; MON_MANUAL.dep.tang=Array(12).fill(null); buildMonGridDepTang(); runDEP(); }
+function resetDepSwMon(){   if(!MON_MANUAL.dep)MON_MANUAL.dep={}; MON_MANUAL.dep.sw=Array(12).fill(null);   buildMonGridDepSw();   runDEP(); }
+function buildMonGridDepTang(){
+  if(!MON_MANUAL.dep) MON_MANUAL.dep={};
+  if(!MON_MANUAL.dep.tang) MON_MANUAL.dep.tang=Array(12).fill(null);
+  const ann=pv('dp_tang_base')||5602;
+  // 기본값: DEP_TANG_SEASON 패턴으로 배분
+  const defV=DEP_TANG_SEASON.map(v=>Math.round(v/DEP_TANG_SEASON_T*ann));
+  defV[11]+=ann-defV.reduce((a,b)=>a+b,0);
+  const vals=defV.map((v,i)=>MON_MANUAL.dep.tang[i]!=null?MON_MANUAL.dep.tang[i]:v);
+  buildMonGrid('mon_dep_tang',[{key:'dep_tang_m',label:'유형자산 기저상각 (백만원)',vals,manual:MON_MANUAL.dep.tang}],'onDepTangChange','resetDepTangMon');
+}
+function buildMonGridDepSw(){
+  if(!MON_MANUAL.dep) MON_MANUAL.dep={};
+  if(!MON_MANUAL.dep.sw) MON_MANUAL.dep.sw=Array(12).fill(null);
+  const ann=pv('dp_sw_base')||434;
+  // 기본값: DEP_SW_SRC 패턴으로 배분
+  const DEF_SW_SRC=[20,20,20,25,25,25,25,25,42,68,68,68];
+  const DEF_SW_TOT=DEF_SW_SRC.reduce((a,b)=>a+b,0);
+  const defV=DEF_SW_SRC.map(v=>Math.round(v/DEF_SW_TOT*ann));
+  defV[11]+=ann-defV.reduce((a,b)=>a+b,0);
+  const vals=defV.map((v,i)=>MON_MANUAL.dep.sw[i]!=null?MON_MANUAL.dep.sw[i]:v);
+  buildMonGrid('mon_dep_sw',[{key:'dep_sw_m',label:'소프트웨어 기저상각 (백만원)',vals,manual:MON_MANUAL.dep.sw}],'onDepSwChange','resetDepSwMon');
+}
+
+// PL 월별 직접조정 (작업 G)
+function onPlAdjChange(key,m,el){ onMonCellChange(key,m,el,runPL); }
+function resetPlAdjMon(){
+  if(!MON_MANUAL.pl_adj)MON_MANUAL.pl_adj={};
+  ['rev','cogs','labor','mkt','rent','dep','opex'].forEach(k=>{MON_MANUAL.pl_adj[k]=Array(12).fill(0);});
+  buildMonGridPlAdj(); runPL();
+}
+function buildMonGridPlAdj(){
+  if(!MON_MANUAL.pl_adj)MON_MANUAL.pl_adj={};
+  const ADJ_ITEMS=[
+    {mk:'rev',  label:'매출 조정'},
+    {mk:'cogs', label:'매출원가 조정'},
+    {mk:'labor',label:'인건비 조정'},
+    {mk:'mkt',  label:'마케팅비 조정'},
+    {mk:'rent', label:'임차관리비 조정'},
+    {mk:'dep',  label:'감가상각비 조정'},
+    {mk:'opex', label:'기타운영비 조정'},
+  ];
+  ADJ_ITEMS.forEach(it=>{ if(!MON_MANUAL.pl_adj[it.mk])MON_MANUAL.pl_adj[it.mk]=Array(12).fill(0); });
+  const items=ADJ_ITEMS.map(it=>({
+    key:`pl_adj_${it.mk}`,label:`${it.label} (백만원)`,
+    vals:[...MON_MANUAL.pl_adj[it.mk]],manual:null
+  }));
+  buildMonGrid('mon_pl_adj',items,'onPlAdjChange','resetPlAdjMon');
+}
+function getPlAdj(mk){ return MON_MANUAL.pl_adj&&MON_MANUAL.pl_adj[mk]?MON_MANUAL.pl_adj[mk]:Array(12).fill(0); }
+
+// 유선 정책수수료/판촉비 월별 편집 (작업 D)
+function onWlPolChange(key,m,el){ onMonCellChange(key,m,el,runWL); }
+function onWlPrmChange(key,m,el){ onMonCellChange(key,m,el,runWL); }
+function resetWlPolMon(){ if(!MON_MANUAL.wl)MON_MANUAL.wl={}; MON_MANUAL.wl.pol=Array(12).fill(null); buildMonGridWlPol(); runWL(); }
+function resetWlPrmMon(){ if(!MON_MANUAL.wl)MON_MANUAL.wl={}; MON_MANUAL.wl.prm=Array(12).fill(null); buildMonGridWlPrm(); runWL(); }
+function buildMonGridWlPol(){
+  if(!MON_MANUAL.wl)MON_MANUAL.wl={}; if(!MON_MANUAL.wl.pol)MON_MANUAL.wl.pol=Array(12).fill(null);
+  const ann=pv('wl_pol')||11369, monthly=Math.round(ann/12);
+  const defV=Array(12).fill(monthly); defV[11]+=ann-defV.reduce((a,b)=>a+b,0);
+  const vals=defV.map((v,i)=>MON_MANUAL.wl.pol[i]!=null?MON_MANUAL.wl.pol[i]:v);
+  buildMonGrid('mon_wl_pol',[{key:'wl_pol_m',label:'유선 정책수수료 (백만원)',vals,manual:MON_MANUAL.wl.pol}],'onWlPolChange','resetWlPolMon');
+}
+function buildMonGridWlPrm(){
+  if(!MON_MANUAL.wl)MON_MANUAL.wl={}; if(!MON_MANUAL.wl.prm)MON_MANUAL.wl.prm=Array(12).fill(null);
+  const ann=pv('wl_prm')||98, monthly=Math.round(ann/12);
+  const defV=Array(12).fill(monthly); defV[11]+=ann-defV.reduce((a,b)=>a+b,0);
+  const vals=defV.map((v,i)=>MON_MANUAL.wl.prm[i]!=null?MON_MANUAL.wl.prm[i]:v);
+  buildMonGrid('mon_wl_prm',[{key:'wl_prm_m',label:'유선 판촉비 (백만원)',vals,manual:MON_MANUAL.wl.prm}],'onWlPrmChange','resetWlPrmMon');
+}
+
+// 인건비 일반직/영업직 급여 총액 월별 편집 (작업 E)
+function onLbGenChange(key,m,el){ onMonCellChange(key,m,el,runLB); }
+function onLbSalChange(key,m,el){ onMonCellChange(key,m,el,runLB); }
+function resetLbGenMon(){ MON_MANUAL.labor_gen=Array(12).fill(null); buildMonGridLbGen(); runLB(); }
+function resetLbSalMon(){ MON_MANUAL.labor_sal=Array(12).fill(null); buildMonGridLbSal(); runLB(); }
+function buildMonGridLbGen(){
+  // 연간 일반직 급여 = HC × 월급 × 12 × (1 + 인상률/100) — 균등 배분 default
+  const hc=pv('lb_gen_hc')||194, base=pv('lb_gen_base')||795, raise=pv('lb_raise')||3.0;
+  const ann=Math.round(hc*base*12*(1+raise/100)/100); // 백만원
+  const monthly=Math.round(ann/12);
+  const defV=Array(12).fill(monthly); defV[11]+=ann-defV.reduce((a,b)=>a+b,0);
+  const vals=defV.map((v,i)=>MON_MANUAL.labor_gen[i]!=null?MON_MANUAL.labor_gen[i]:v);
+  buildMonGrid('mon_lb_gen',[{key:'lb_gen_m',label:'일반직 급여합계 (백만원)',vals,manual:MON_MANUAL.labor_gen}],'onLbGenChange','resetLbGenMon');
+}
+function buildMonGridLbSal(){
+  const hc=pv('lb_sal_hc')||1940, base=pv('lb_sal_base')||313, raise=pv('lb_raise')||3.0;
+  const ann=Math.round(hc*base*12*(1+raise/100)/100);
+  const monthly=Math.round(ann/12);
+  const defV=Array(12).fill(monthly); defV[11]+=ann-defV.reduce((a,b)=>a+b,0);
+  const vals=defV.map((v,i)=>MON_MANUAL.labor_sal[i]!=null?MON_MANUAL.labor_sal[i]:v);
+  buildMonGrid('mon_lb_sal',[{key:'lb_sal_m',label:'영업직 급여합계 (백만원)',vals,manual:MON_MANUAL.labor_sal}],'onLbSalChange','resetLbSalMon');
+}
+
+// 인건비 복리후생비
+function onLbWelfChange(key,m,el){ onMonCellChange(key,m,el,runLB); }
+function resetLbWelfMon(){ MON_MANUAL.welfare=Array(12).fill(null); buildMonGridLbWelfare(); runLB(); }
+function buildMonGridLbWelfare(){
+  const DEF=[2484,2654,2584,2732,2588,3760,2660,3039,2682,2980,2800,3445];
+  const vals=DEF.map((v,i)=>MON_MANUAL.welfare[i]!=null?MON_MANUAL.welfare[i]:v);
+  buildMonGrid('mon_lb_welfare',[{key:'lb_welfare_m',label:'복리후생비 (백만원)',vals,manual:MON_MANUAL.welfare}],'onLbWelfChange','resetLbWelfMon');
+}
+
+// 인건비 포상비
+function onLbRewardChange(key,m,el){ onMonCellChange(key,m,el,runLB); }
+function resetLbRewardMon(){ MON_MANUAL.reward=Array(12).fill(null); buildMonGridLbReward(); runLB(); }
+function buildMonGridLbReward(){
+  const DEF=[20,72,70,41,39,32,44,44,44,44,44,221];
+  const vals=DEF.map((v,i)=>MON_MANUAL.reward[i]!=null?MON_MANUAL.reward[i]:v);
+  buildMonGrid('mon_lb_reward',[{key:'lb_reward_m',label:'포상비 (백만원)',vals,manual:MON_MANUAL.reward}],'onLbRewardChange','resetLbRewardMon');
+}
+
+// 인프라 임차관리비합계
+function onIfRentChange(key,m,el){ onMonCellChange(key,m,el,runIF); }
+function resetIfRentMon(){ MON_MANUAL.infra.rent=Array(12).fill(null); buildMonGridIfRent(); runIF(); }
+function buildMonGridIfRent(){
+  if(!MON_MANUAL.infra.rent) MON_MANUAL.infra.rent=Array(12).fill(null);
+  const DEF=[907,907,-718,908,908,-722,910,910,-714,911,912,-717];
+  const vals=DEF.map((v,i)=>MON_MANUAL.infra.rent[i]!=null?MON_MANUAL.infra.rent[i]:v);
+  buildMonGrid('mon_if_rent',[{key:'if_rent_m',label:'임차관리비합계 (백만원)',vals,manual:MON_MANUAL.infra.rent}],'onIfRentChange','resetIfRentMon');
+}
+
+// OpEx 회의비
+function onOxMtgChange(key,m,el){ onMonCellChange(key,m,el,runOX); }
+function resetOxMtgMon(){ MON_MANUAL.opex.mtg=Array(12).fill(null); buildMonGridOxMtg(); runOX(); }
+function buildMonGridOxMtg(){
+  if(!MON_MANUAL.opex.mtg) MON_MANUAL.opex.mtg=Array(12).fill(null);
+  const DEF=[497,459,512,469,470,468,522,476,536,491,528,987];
+  const vals=DEF.map((v,i)=>MON_MANUAL.opex.mtg[i]!=null?MON_MANUAL.opex.mtg[i]:v);
+  buildMonGrid('mon_ox_mtg',[{key:'ox_mtg_m',label:'회의비합계 (백만원)',vals,manual:MON_MANUAL.opex.mtg}],'onOxMtgChange','resetOxMtgMon');
+}
+
+// OpEx 기타운영비 9개 항목
+function onOxEtcChange(key,m,el){ onMonCellChange(key,m,el,runOX); }
+function resetOxEtcMon(){
+  ['trans','edu','telecom','supplies','entertain','insure','tax','car','travel','book'].forEach(k=>{MON_MANUAL.opex[k]=Array(12).fill(null);});
+  buildMonGridOxEtc(); runOX();
+}
+function buildMonGridOxEtc(){
+  const CFG=[
+    {key:'ox_trans_m', label:'운반비',     mk:'trans',     DEF:[429,349,463,372,371,367,484,383,512,417,388,338]},
+    {key:'ox_edu_m',   label:'교육훈련비', mk:'edu',       DEF:[77,77,76,76,83,77,77,77,78,77,77,78]},
+    {key:'ox_tel_m',   label:'통신비',     mk:'telecom',   DEF:[81,83,83,82,85,85,85,85,86,85,85,86]},
+    {key:'ox_sup_m',   label:'소모품비',   mk:'supplies',  DEF:[123,123,123,123,123,123,123,123,124,123,123,124]},
+    {key:'ox_ent_m',   label:'접대비',     mk:'entertain', DEF:[27,27,27,27,27,27,27,27,27,27,27,27]},
+    {key:'ox_ins_m',   label:'보험료',     mk:'insure',    DEF:[78,77,77,77,78,78,78,78,78,78,78,78]},
+    {key:'ox_tax_m',   label:'세금과공과', mk:'tax',       DEF:[13,13,13,13,13,13,13,113,13,13,13,13]},
+    {key:'ox_car_m',   label:'차량유지비', mk:'car',       DEF:[112,112,111,111,112,112,113,113,113,113,112,113]},
+    {key:'ox_trv_m',   label:'여비교통비', mk:'travel',    DEF:[51,51,51,51,51,51,52,52,52,52,51,51]},
+    {key:'ox_bk_m',    label:'도서인쇄비', mk:'book',      DEF:[0,0,0,0,0,0,0,0,0,0,0,1]},
+  ];
+  CFG.forEach(c=>{ if(!MON_MANUAL.opex[c.mk]) MON_MANUAL.opex[c.mk]=Array(12).fill(null); });
+  const items=CFG.map(c=>({
+    key:c.key, label:c.label,
+    vals:c.DEF.map((v,i)=>MON_MANUAL.opex[c.mk][i]!=null?MON_MANUAL.opex[c.mk][i]:v),
+    manual:MON_MANUAL.opex[c.mk]
+  }));
+  buildMonGrid('mon_ox_etc', items, 'onOxEtcChange', 'resetOxEtcMon');
+}
+
+// ─── 무선 대당단가 월별 그리드 (작업 B) ──────────────────────────────────
+function syncWUnitMon(type){
+  const idMap={pu:'w_pu',cu:'w_cu',pol:'w_pu_pol'};
+  const v=pv(idMap[type]||'w_pu');
+  // AUTO(null) 월만 업데이트 — MANUAL 월은 유지
+  W_UNIT_MON[type]=W_UNIT_MON[type].map((cur,i)=>MON_MANUAL.pu_mon&&MON_MANUAL.pu_mon[type]&&MON_MANUAL.pu_mon[type][i]!=null?cur:v);
+}
+function onWPuChange(key,m,el){ const v=parseInt(el.value.replace(/,/g,''))||0; el.classList.add('manual'); W_UNIT_MON.pu[m]=v; if(!MON_MANUAL.pu_mon)MON_MANUAL.pu_mon={pu:Array(12).fill(null),cu:Array(12).fill(null),pol:Array(12).fill(null)}; MON_MANUAL.pu_mon.pu[m]=v; onMonCellChange(key,m,el,runW); }
+function onWCuChange(key,m,el){ const v=parseInt(el.value.replace(/,/g,''))||0; el.classList.add('manual'); W_UNIT_MON.cu[m]=v; if(!MON_MANUAL.pu_mon)MON_MANUAL.pu_mon={pu:Array(12).fill(null),cu:Array(12).fill(null),pol:Array(12).fill(null)}; MON_MANUAL.pu_mon.cu[m]=v; onMonCellChange(key,m,el,runW); }
+function onWPolChange(key,m,el){ const v=parseInt(el.value.replace(/,/g,''))||0; el.classList.add('manual'); W_UNIT_MON.pol[m]=v; if(!MON_MANUAL.pu_mon)MON_MANUAL.pu_mon={pu:Array(12).fill(null),cu:Array(12).fill(null),pol:Array(12).fill(null)}; MON_MANUAL.pu_mon.pol[m]=v; onMonCellChange(key,m,el,runW); }
+function resetWPuMon(){ W_UNIT_MON.pu=Array(12).fill(pv('w_pu')||708268); if(MON_MANUAL.pu_mon)MON_MANUAL.pu_mon.pu=Array(12).fill(null); buildMonGridWPu(); runW(); }
+function resetWCuMon(){ W_UNIT_MON.cu=Array(12).fill(pv('w_cu')||760673); if(MON_MANUAL.pu_mon)MON_MANUAL.pu_mon.cu=Array(12).fill(null); buildMonGridWCu(); runW(); }
+function resetWPolMon(){ W_UNIT_MON.pol=Array(12).fill(pv('w_pu_pol')||247338); if(MON_MANUAL.pu_mon)MON_MANUAL.pu_mon.pol=Array(12).fill(null); buildMonGridWPol(); runW(); }
+function buildMonGridWPu(){
+  const ann=pv('w_pu')||708268;
+  const mm=(MON_MANUAL.pu_mon||{}).pu||Array(12).fill(null);
+  const vals=W_UNIT_MON.pu.map((v,i)=>mm[i]!=null?mm[i]:(ann||v));
+  buildMonGrid('mon_w_pu',[{key:'w_pu_m',label:'대당매출단가 (원/건)',vals,manual:mm}],'onWPuChange','resetWPuMon');
+}
+function buildMonGridWCu(){
+  const ann=pv('w_cu')||760673;
+  const mm=(MON_MANUAL.pu_mon||{}).cu||Array(12).fill(null);
+  const vals=W_UNIT_MON.cu.map((v,i)=>mm[i]!=null?mm[i]:(ann||v));
+  buildMonGrid('mon_w_cu',[{key:'w_cu_m',label:'대당원가단가 (원/건)',vals,manual:mm}],'onWCuChange','resetWCuMon');
+}
+function buildMonGridWPol(){
+  const ann=pv('w_pu_pol')||247338;
+  const mm=(MON_MANUAL.pu_mon||{}).pol||Array(12).fill(null);
+  const vals=W_UNIT_MON.pol.map((v,i)=>mm[i]!=null?mm[i]:(ann||v));
+  buildMonGrid('mon_w_pol',[{key:'w_pol_m',label:'대당정책수수료 (원/건)',vals,manual:mm}],'onWPolChange','resetWPolMon');
 }
 
 function simPLv2(){
@@ -1362,6 +1877,24 @@ function simPLv2(){
   const dist_op_mon=dp.tot.op_mon;
   const dist_op_ann=dp.tot.op;
 
+  // === PL 월별 직접조정 가산 (작업 G) ===
+  const adjRev=getPlAdj('rev'), adjCogs=getPlAdj('cogs');
+  const adjLabor=getPlAdj('labor'), adjMkt=getPlAdj('mkt');
+  const adjRent=getPlAdj('rent'), adjDep=getPlAdj('dep'), adjOpex=getPlAdj('opex');
+  // 조정값을 월별 배열에 in-place 반영 (const 배열이지만 원소 변경 가능)
+  for(let m=0;m<12;m++){
+    tel_rev_mon[m]+=adjRev[m];
+    tel_cogs_mon[m]+=adjCogs[m];
+    tel_labor_mon[m]+=adjLabor[m];
+    tel_mkt_mon[m]+=adjMkt[m];
+    tel_rent_mon[m]+=adjRent[m];
+    tel_dep_mon[m]+=adjDep[m];
+    tel_opex_mon[m]+=adjOpex[m];
+    tel_gp_mon[m]=tel_rev_mon[m]-tel_cogs_mon[m];
+    tel_sga_mon[m]=tel_labor_mon[m]+tel_mkt_mon[m]+tel_rent_mon[m]+tel_dep_mon[m]+tel_opex_mon[m];
+    tel_op_mon[m]=tel_gp_mon[m]-tel_sga_mon[m];
+  }
+
   // === 종합 합산 ===
   const tot_rev_mon=zip(tel_rev_mon, dist_rev_mon), tot_rev_ann=tot_rev_mon.reduce((a,b)=>a+b,0);
   const tot_cogs_mon=zip(tel_cogs_mon, dist_cogs_mon), tot_cogs_ann=tot_cogs_mon.reduce((a,b)=>a+b,0);
@@ -1389,26 +1922,34 @@ function simPLv2(){
   }
   updYoY('ypl_dist_rev', dist_rev_ann, H_DIST.rev[3]);
 
+  // 조정 반영된 최종 연간합 (in-place 변경된 배열 기준)
+  const _sum=(a)=>a.reduce((s,v)=>s+v,0);
+  const adjRevAnn=_sum(tel_rev_mon), adjCogsAnn=_sum(tel_cogs_mon);
+  const adjGpAnn=_sum(tel_gp_mon), adjLaborAnn=_sum(tel_labor_mon);
+  const adjMktAnn=_sum(tel_mkt_mon), adjRentAnn=_sum(tel_rent_mon);
+  const adjDepAnn=_sum(tel_dep_mon), adjOpexAnn=_sum(tel_opex_mon);
+  const adjSgaAnn=_sum(tel_sga_mon), adjOpAnn=_sum(tel_op_mon);
+
   return{
-    tel:{rev_ann:tel_rev_ann,rev_mon:tel_rev_mon,prod_ann:tel_prod_ann,prod_mon:tel_prod_mon,
+    tel:{rev_ann:adjRevAnn,rev_mon:tel_rev_mon,prod_ann:tel_prod_ann,prod_mon:tel_prod_mon,
          comm_ann:tel_comm_ann,comm_mon:tel_comm_mon,pol_ann:tel_pol_ann,pol_mon:tel_pol_mon,
          mgmt_ann:tel_mgmt_ann,mgmt_mon:tel_mgmt_mon,etc_ann:tel_etc_ann,etc_mon:tel_etc_mon,
-         cogs_ann:tel_cogs_ann,cogs_mon:tel_cogs_mon,gp_ann:tel_gp_ann,gp_mon:tel_gp_mon,
-         labor_ann:tel_labor_ann,labor_mon:tel_labor_mon,mkt_ann:tel_mkt_ann,mkt_mon:tel_mkt_mon,
+         cogs_ann:adjCogsAnn,cogs_mon:tel_cogs_mon,gp_ann:adjGpAnn,gp_mon:tel_gp_mon,
+         labor_ann:adjLaborAnn,labor_mon:tel_labor_mon,mkt_ann:adjMktAnn,mkt_mon:tel_mkt_mon,
          sc_ann:tel_sc_ann,sc_mon:tel_sc_mon,sp_ann:tel_sp_ann,sp_mon:tel_sp_mon,
          adv_ann:tel_adv_ann,adv_mon:tel_adv_mon,inc_ann:tel_inc_ann,inc_mon:tel_inc_mon,
-         rent_ann:tel_rent_ann,rent_mon:tel_rent_mon,dep_ann:tel_dep_ann,dep_mon:tel_dep_mon,
-         opex_ann:tel_opex_ann,opex_mon:tel_opex_mon,sga_ann:tel_sga_ann,sga_mon:tel_sga_mon,
-         op_ann:tel_op_ann,op_mon:tel_op_mon},
+         rent_ann:adjRentAnn,rent_mon:tel_rent_mon,dep_ann:adjDepAnn,dep_mon:tel_dep_mon,
+         opex_ann:adjOpexAnn,opex_mon:tel_opex_mon,sga_ann:adjSgaAnn,sga_mon:tel_sga_mon,
+         op_ann:adjOpAnn,op_mon:tel_op_mon},
     dist:{rev_ann:dist_rev_ann,rev_mon:dist_rev_mon,cogs_ann:dist_cogs_ann,cogs_mon:dist_cogs_mon,
           gp_ann:dist_gp_ann,gp_mon:dist_gp_mon,labor_ann:dist_labor_ann,
           sga_ann:dist_sga_ann,sga_mon:dist_sga_mon,op_ann:dist_op_ann,op_mon:dist_op_mon},
     tot:{rev_ann:tot_rev_ann,rev_mon:tot_rev_mon,cogs_ann:tot_cogs_ann,cogs_mon:tot_cogs_mon,
          gp_ann:tot_gp_ann,gp_mon:tot_gp_mon,pol_ann:tel_pol_ann,mgmt_ann:tel_mgmt_ann,
          etc_ann:tel_etc_ann,
-         labor_ann:tel_labor_ann+dist_labor_ann,mkt_ann:tel_mkt_ann,
+         labor_ann:adjLaborAnn+dist_labor_ann,mkt_ann:adjMktAnn,
          sc_ann:tel_sc_ann,sp_ann:tel_sp_ann,
-         rent_ann:tel_rent_ann,dep_ann:tel_dep_ann,opex_ann:tel_opex_ann,
+         rent_ann:adjRentAnn,dep_ann:adjDepAnn,opex_ann:adjOpexAnn,
          sga_ann:tot_sga_ann,sga_mon:tot_sga_mon,op_ann:tot_op_ann,op_mon:tot_op_mon},
   };
 }
@@ -1448,7 +1989,7 @@ function plTable(rows26E, hRows, H_ref){
     const lnk=r.lnk&&HK_TAB[r.hk];
     const rowCls=`${r.cls||'r-sub'}${lnk?' hover-row':''}`;
     const rc=lnk?`${rowClick(r.hk)} style="${rowStyle(r.hk)}"`:' ';
-    mt+=`<tr class="${rowCls}" ${rc}><td>${r.l}${lnk?`<span style="font-size:10px;color:var(--ac2);margin-left:4px">🔗</span>`:''}</td>`;
+    mt+=`<tr class="${rowCls}" ${rc}><td>${r.l}${lnk?`<span onclick="navToTab('${HK_TAB[r.hk]}');event.stopPropagation()" title="${HK_TAB[r.hk]} 탭에서 편집" style="font-size:10px;color:var(--or2);margin-left:4px;cursor:pointer" class="edit-nav-icon">✏️</span>`:''}</td>`;
     r.mon26.forEach(v=>mt+=`<td${v<0?' class="neg"':''}>${fmt(v)}</td>`);
     mt+=`<td style="font-weight:700">${fmt(Math.round(tot))}</td></tr>`;
   }
@@ -1721,7 +2262,9 @@ function simWireless(){
       // 관리수수료 계산: 소스 Active × CAPA 스케일
       const scaledActive=Math.round((srcActive[m]||stock)*capaScale);
       active[ch].push(scaledActive);
-      관리수수료[ch].push(Math.round(scaledActive*fee[ch]/1000000*100)/100);
+      // 월별 단가 우선 사용 (작업 C: MON_MANUAL.fee_u 수동 입력 시)
+      const feeM=(MON_MANUAL.fee_u[ch]&&MON_MANUAL.fee_u[ch][m]!=null)?MON_MANUAL.fee_u[ch][m]:fee[ch];
+      관리수수료[ch].push(Math.round(scaledActive*feeM/1000000*100)/100);
     }
   }
 
@@ -1783,18 +2326,24 @@ function simWireless(){
   // ==== 상품매출 / 매출원가 / 정책수수료 (비IoT CAPA 기준) ====
   const pu=pv('w_pu'),cu=pv('w_cu'),puPol=pv('w_pu_pol');
   const capaNoIoTAnn=capaTotalMon_noIoT.reduce((a,b)=>a+b,0);
-  const prodRevTotal_=Math.round(capaNoIoTAnn*pu/1000000);
-  const prodCogsTotal_=Math.round(capaNoIoTAnn*cu/1000000);
-  const polFeeTotal_=Math.round(capaNoIoTAnn*puPol/1000000);
-  const prodRev=W_PROD_SEASON.map((w,i)=>i<11?Math.round(prodRevTotal_*w):0);
-  prodRev[11]=prodRevTotal_-prodRev.slice(0,11).reduce((a,b)=>a+b,0);
-  const prodCogs=W_PROD_SEASON.map((w,i)=>i<11?Math.round(prodCogsTotal_*w):0);
-  prodCogs[11]=prodCogsTotal_-prodCogs.slice(0,11).reduce((a,b)=>a+b,0);
-  // 정책수수료: LRM(최대나머지법)으로 배분 → 소수점 오차 12월 집중 방지
-  const polFeeRaw=W_POL_MON26_SRC.map(v=>v*polFeeTotal_/W_POL_ANN26_SRC);
-  const polFee=polFeeRaw.map(v=>Math.floor(v));
-  const polFeeRem=polFeeTotal_-polFee.reduce((a,b)=>a+b,0);
-  polFeeRaw.map((v,i)=>({i,f:v-Math.floor(v)})).sort((a,b)=>b.f-a.f).slice(0,polFeeRem).forEach(x=>polFee[x.i]++);
+  // W_UNIT_MON 월별 단가 사용 (월별 수동 수정 반영)
+  const hasPuMon=W_UNIT_MON.pu.some((v,i)=>v!==pu||(MON_MANUAL.pu_mon&&MON_MANUAL.pu_mon.pu[i]!=null));
+  const hasCuMon=W_UNIT_MON.cu.some((v,i)=>v!==cu||(MON_MANUAL.pu_mon&&MON_MANUAL.pu_mon.cu[i]!=null));
+  const hasPolMon=W_UNIT_MON.pol.some((v,i)=>v!==puPol||(MON_MANUAL.pu_mon&&MON_MANUAL.pu_mon.pol[i]!=null));
+  const prodRev=capaTotalMon_noIoT.map((cap,m)=>Math.round(cap*(hasPuMon?W_UNIT_MON.pu[m]:pu)/1000000));
+  const prodCogs=capaTotalMon_noIoT.map((cap,m)=>Math.round(cap*(hasCuMon?W_UNIT_MON.cu[m]:cu)/1000000));
+  const polFeeByMon=capaTotalMon_noIoT.map((cap,m)=>Math.round(cap*(hasPolMon?W_UNIT_MON.pol[m]:puPol)/1000000));
+  const prodRevTotal_=prodRev.reduce((a,b)=>a+b,0);
+  const prodCogsTotal_=prodCogs.reduce((a,b)=>a+b,0);
+  const polFeeTotal_=polFeeByMon.reduce((a,b)=>a+b,0);
+  // 정책수수료: 월별단가 사용 시 직접 계산, 아니면 LRM 소스패턴 배분
+  const polFee=hasPolMon?polFeeByMon:(()=>{
+    const raw=W_POL_MON26_SRC.map(v=>v*polFeeTotal_/W_POL_ANN26_SRC);
+    const arr=raw.map(v=>Math.floor(v));
+    const rem=Math.round(polFeeTotal_)-arr.reduce((a,b)=>a+b,0);
+    raw.map((v,i)=>({i,f:v-Math.floor(v)})).sort((a,b)=>b.f-a.f).slice(0,rem<0?0:rem).forEach(x=>arr[x.i]++);
+    return arr;
+  })();
   const prodRevTotal=prodRev.reduce((a,b)=>a+b,0);
   const prodCogsTotal=prodCogs.reduce((a,b)=>a+b,0);
   const polFeeTotal=polFee.reduce((a,b)=>a+b,0);
@@ -3009,9 +3558,14 @@ function simDepre(){
   const sw_base   = pv('dp_sw_base');    // 소프트웨어 기저 연간
   const dist_dep  = pv('dp_dist_dep');   // 유통플랫폼 상각
 
-  // === 유형자산 기저 — 분기말 처리 패턴 그대로 스케일 ===
-  const tang_base_mon = DEP_TANG_SEASON.map(v=>Math.round(v/DEP_TANG_SEASON_T*tang_base));
-  tang_base_mon[11] += tang_base - tang_base_mon.reduce((a,b)=>a+b,0);
+  // === 유형자산 기저 — 분기말 처리 패턴 (월별 수동입력 우선, 작업 F) ===
+  const _depTangMon=(MON_MANUAL.dep&&MON_MANUAL.dep.tang)||Array(12).fill(null);
+  const tang_base_mon = DEP_TANG_SEASON.map((v,m)=>{
+    if(_depTangMon[m]!=null) return _depTangMon[m];
+    return Math.round(v/DEP_TANG_SEASON_T*tang_base);
+  });
+  // null이 없을 때만 LRM 조정 (수동 입력 시 합계 우선)
+  if(_depTangMon.every(v=>v==null)) tang_base_mon[11] += tang_base - tang_base_mon.reduce((a,b)=>a+b,0);
 
   // === 신규 CAPEX 상각 계산 ===
   // 시설장치: 분기말에 몰아 처리 (취득월 포함 분기말부터)
@@ -3031,14 +3585,19 @@ function simDepre(){
     tang_new_mon[11] += Math.round(monthly_dep * Math.min(3, 12 - startQ_idx));
   });
 
-  // === 소프트웨어: 취득 다음 달부터 매월 균등 상각 ===
-  // === 소프트웨어: 소스 패턴 기반 LRM 배분 ===
+  // === 소프트웨어: 소스 패턴 기반 LRM 배분 (월별 수동입력 우선, 작업 F) ===
   const DEP_SW_SRC=[20,20,20,25,25,25,25,25,42,68,68,68];
   const DEP_SW_TOT=DEP_SW_SRC.reduce((a,b)=>a+b,0);
-  const sw_raw=DEP_SW_SRC.map(v=>v*sw_base/DEP_SW_TOT);
-  const sw_base_mon=sw_raw.map(v=>Math.floor(v));
-  const sw_rem=Math.round(sw_base)-sw_base_mon.reduce((a,b)=>a+b,0);
-  sw_raw.map((v,i)=>({i,f:v-Math.floor(v)})).sort((a,b)=>b.f-a.f).slice(0,sw_rem).forEach(x=>sw_base_mon[x.i]++);
+  const _depSwMon=(MON_MANUAL.dep&&MON_MANUAL.dep.sw)||Array(12).fill(null);
+  const sw_base_mon=DEP_SW_SRC.map((v,m)=>{
+    if(_depSwMon[m]!=null) return _depSwMon[m];
+    return Math.floor(v*sw_base/DEP_SW_TOT);
+  });
+  if(_depSwMon.every(v=>v==null)){
+    const sw_raw=DEP_SW_SRC.map(v=>v*sw_base/DEP_SW_TOT);
+    const sw_rem=Math.round(sw_base)-sw_base_mon.reduce((a,b)=>a+b,0);
+    sw_raw.map((v,i)=>({i,f:v-Math.floor(v)})).sort((a,b)=>b.f-a.f).slice(0,sw_rem).forEach(x=>sw_base_mon[x.i]++);
+  }
 
   const sw_new_mon = Array(12).fill(0);
   _swRows.forEach(r=>{
