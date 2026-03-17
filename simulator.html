@@ -6407,7 +6407,7 @@ function _mtrackUpdateAuto() {
     vals.forEach((v, m) => {
       const cell = document.getElementById(`mtr_auto_${r.id}_${m}`);
       if (!cell) return;
-      cell.textContent = r.isRate ? v.toFixed(1)+'%' : r.isUnit ? v.toLocaleString('ko-KR') : fmt(v);
+      cell.textContent = r.isRate ? v.toFixed(1)+'%' : r.isUnit ? v.toLocaleString('ko-KR') : _fmt(v);
       cell.className = 'mtrack-auto' + (r.isRate ? ' mtrack-rate' : '');
     });
     // YTD
@@ -6431,7 +6431,7 @@ function _mtrackUpdateAuto() {
         else if (r.id==='marginPu') ytdV = sumUnits ? Math.round((sumRev-sumCogs)*1e6/sumUnits):0;
         ytdEl.textContent = ytdV.toLocaleString('ko-KR');
       } else {
-        ytdEl.textContent = fmt(vals.reduce((a,b)=>a+b,0));
+        ytdEl.textContent = _fmt(vals.reduce((a,b)=>a+b,0));
       }
     }
   });
@@ -6470,12 +6470,12 @@ function renderMonthlyTrack() {
           inputmode="numeric"
           ></td>`;
       }
-      html += `<td class="mtrack-ytd-cell" id="mtr_ytd_${r.id}">${fmt(sum)}</td>`;
+      html += `<td class="mtrack-ytd-cell" id="mtr_ytd_${r.id}">${_fmt(sum)}</td>`;
     } else {
       // auto
       for (let m=0; m<12; m++) {
         const v = r.autoFn(d, m);
-        const disp = r.isRate ? v.toFixed(1)+'%' : r.isUnit ? v.toLocaleString('ko-KR') : fmt(v);
+        const disp = r.isRate ? v.toFixed(1)+'%' : r.isUnit ? v.toLocaleString('ko-KR') : _fmt(v);
         html += `<td><span class="mtrack-auto${r.isRate?' mtrack-rate':''}" id="mtr_auto_${r.id}_${m}">${disp}</span></td>`;
       }
       // YTD for auto
@@ -6499,7 +6499,7 @@ function renderMonthlyTrack() {
         ytdDisp = ytdV.toLocaleString('ko-KR');
       } else {
         const s = Array.from({length:12},(_,m2)=>r.autoFn(d,m2)).reduce((a,b)=>a+b,0);
-        ytdDisp = fmt(s);
+        ytdDisp = _fmt(s);
       }
       html += `<td class="mtrack-ytd-cell" id="mtr_ytd_${r.id}">${ytdDisp}</td>`;
     }
