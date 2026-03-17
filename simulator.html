@@ -169,6 +169,35 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .drv-calc{background:rgba(16,80,50,.25);color:var(--gn2)}
 .drv-total{background:rgba(59,130,246,.06);font-weight:700}
 .drv-edit-cell{cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
+
+/* ── 월별 추적 스프레드시트 ── */
+#sheet_monthly_track{padding:20px 24px}
+.mtrack-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.mtrack-title{font-size:16px;font-weight:700;color:var(--t1)}
+.mtrack-subtitle{font-size:11px;color:var(--t3);margin-top:2px}
+.mtrack-actions{display:flex;gap:6px;align-items:center}
+.mtrack-wrap{overflow-x:auto;border:1px solid var(--bd);border-radius:10px}
+.mtrack-tbl{border-collapse:collapse;font-size:11px;min-width:1200px;width:100%}
+.mtrack-tbl th{background:var(--s2);padding:7px 10px;font-weight:600;color:var(--t2);font-size:10px;white-space:nowrap;border-bottom:2px solid var(--bd);border-right:1px solid rgba(42,53,80,.4)}
+.mtrack-tbl th:first-child{text-align:left;min-width:160px;position:sticky;left:0;z-index:2;background:var(--s2)}
+.mtrack-tbl th.mtrack-ytd-hdr{background:rgba(59,130,246,.12);color:var(--ac2)}
+.mtrack-tbl td{padding:3px 4px;border-bottom:1px solid rgba(42,53,80,.35);border-right:1px solid rgba(42,53,80,.25);text-align:right;vertical-align:middle}
+.mtrack-tbl td:first-child{text-align:left;padding:4px 10px;font-size:11px;font-weight:500;color:var(--t2);position:sticky;left:0;z-index:1;background:var(--s1);white-space:nowrap}
+.mtrack-tbl tr:hover td{background:rgba(59,130,246,.05)!important}
+.mtrack-tbl tr:hover td:first-child{background:var(--s2)!important}
+.mtrack-section td{background:var(--s3)!important;font-weight:700;font-size:11px;color:var(--t1)!important;padding:5px 10px!important;border-bottom:2px solid var(--bd)!important;letter-spacing:.5px}
+.mtrack-section td:first-child{color:var(--ac2)!important;background:var(--s3)!important}
+.mtrack-inp{width:72px;padding:3px 5px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--t1);font-family:'JetBrains Mono',monospace;font-size:11px;text-align:right;outline:none;transition:.15s}
+.mtrack-inp:hover{border-color:var(--bd);background:var(--s2)}
+.mtrack-inp:focus{border-color:var(--ac);background:var(--s2);color:var(--ac2)}
+.mtrack-inp.edited{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.06);color:var(--or2)}
+.mtrack-auto{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);padding:0 8px;white-space:nowrap}
+.mtrack-auto.mtrack-rate{color:var(--pp)}
+.mtrack-auto.mtrack-good{color:var(--gn2)!important}
+.mtrack-auto.mtrack-bad{color:var(--rd2)!important}
+.mtrack-ytd-cell{background:rgba(59,130,246,.07)!important;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ac2);padding:0 8px;white-space:nowrap}
+.mtrack-tbl tr.mtrack-total-row td{background:rgba(16,185,129,.06)!important;font-weight:700;color:var(--gn2)!important;border-top:2px solid rgba(16,185,129,.2)!important}
+.mtrack-tbl tr.mtrack-total-row td:first-child{color:var(--gn2)!important;background:rgba(16,185,129,.08)!important}
 </style>
 </head>
 <body>
@@ -207,6 +236,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <button class="main-tab" onclick="switchMain('verify')" style="color:var(--or2);font-weight:700">✅ 손익검증</button>
   <button class="main-tab" onclick="switchMain('midterm')" style="color:var(--pp)">📈 중기계획</button>
   <button class="main-tab" onclick="switchMain('settings')" style="color:var(--or2)">⚙️ 설정/롤링</button>
+  <button class="main-tab" onclick="switchMain('monthly_track')" style="color:var(--ac2)">📊 월별추적</button>
   <!-- SHEET_TAB_ANCHOR -->
 </div>
 
@@ -1178,6 +1208,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 </div>
 </div>
 
+<!-- ============================================================ -->
+<!-- 📊 월별 추적 스프레드시트 -->
+<!-- ============================================================ -->
+<div id="sheet_monthly_track" class="sheet">
+  <div class="mtrack-hdr">
+    <div>
+      <div class="mtrack-title">📊 월별 실적 추적 스프레드시트</div>
+      <div class="mtrack-subtitle">대당 매출/원가, 원가율 등 주요 KPI를 월별로 직접 입력·수정 | 자동저장</div>
+    </div>
+    <div class="mtrack-actions">
+      <button class="btn" onclick="mtrackFillFromPlan()" style="font-size:11px">🔄 계획값으로 채우기</button>
+      <button class="btn" onclick="mtrackReset()" style="font-size:11px;color:var(--rd2)">↩ 초기화</button>
+    </div>
+  </div>
+  <div class="mtrack-wrap">
+    <div id="mtrack_grid"></div>
+  </div>
+</div>
+
 <div id="sheet_verify" class="sheet">
 <div style="padding:0 4px">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px">
@@ -1577,6 +1626,7 @@ function switchMain(tab){
   if(tab==='verify') renderVerify();
   if(tab==='midterm') renderMidterm();
   if(tab==='settings'){ renderSettings(); checkTrend(); }
+  if(tab==='monthly_track') renderMonthlyTrack();
 }
 
 // ============================================================
@@ -6199,6 +6249,7 @@ function resetAll(){
 // ============================================================
 document.addEventListener('DOMContentLoaded',()=>{
   loadState();
+  _mtrackEnsure();
   setupPLBindings();
   buildWirelessInputs();
   buildWirelineInputs();
@@ -6262,6 +6313,210 @@ function applyEditCell(){
   }
   closeEditCell();
   runW(); runPL();
+}
+
+// ============================================================
+// 📊 월별 추적 스프레드시트
+// ============================================================
+
+const MTRACK_MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+// 행 정의: {id, label, unit, type:'input'|'auto', section, autoFn, planArr, goodDir}
+const MTRACK_ROWS = [
+  // ── 매출 ──
+  {section:'📈 매출 (백만원)'},
+  {id:'rev',      label:'전사 매출',       unit:'백만원', type:'input',  planArr:CORP_MON_2026.매출},
+  {id:'telRev',   label:'└ 통신 매출',     unit:'백만원', type:'input'},
+  {id:'distRev',  label:'└ 유통플랫폼 매출', unit:'백만원', type:'input'},
+  // ── 원가 ──
+  {section:'💰 원가 / 수익성'},
+  {id:'cogs',     label:'매출원가',         unit:'백만원', type:'input',  planArr:CORP_MON_2026.매출원가},
+  {id:'cogsRate', label:'원가율',           unit:'%',      type:'auto',   autoFn:(d,m)=>d.rev[m]?+(d.cogs[m]/d.rev[m]*100).toFixed(1):0, isRate:true, goodDir:'down'},
+  {id:'gp',       label:'매출총이익',       unit:'백만원', type:'auto',   autoFn:(d,m)=>d.rev[m]-d.cogs[m]},
+  {id:'gpRate',   label:'매출총이익률',     unit:'%',      type:'auto',   autoFn:(d,m)=>d.rev[m]?+(( d.rev[m]-d.cogs[m])/d.rev[m]*100).toFixed(1):0, isRate:true, goodDir:'up'},
+  {id:'op',       label:'영업이익',         unit:'백만원', type:'input',  planArr:CORP_MON_2026.영업이익},
+  {id:'opRate',   label:'영업이익률',       unit:'%',      type:'auto',   autoFn:(d,m)=>d.rev[m]?+(d.op[m]/d.rev[m]*100).toFixed(1):0, isRate:true, goodDir:'up'},
+  // ── 채널 KPI ──
+  {section:'📦 채널 KPI'},
+  {id:'units',    label:'판매 대수',        unit:'건',     type:'input'},
+  {id:'revPu',    label:'대당 매출',        unit:'원/건',  type:'auto',   autoFn:(d,m)=>d.units[m]?Math.round(d.rev[m]*1e6/d.units[m]):0, isUnit:true, goodDir:'up'},
+  {id:'cogsPu',   label:'대당 원가',        unit:'원/건',  type:'auto',   autoFn:(d,m)=>d.units[m]?Math.round(d.cogs[m]*1e6/d.units[m]):0, isUnit:true, goodDir:'down'},
+  {id:'marginPu', label:'대당 마진',        unit:'원/건',  type:'auto',   autoFn:(d,m)=>d.units[m]?Math.round((d.rev[m]-d.cogs[m])*1e6/d.units[m]):0, isUnit:true, goodDir:'up'},
+  // ── 판관비 ──
+  {section:'🧾 판관비 (백만원)'},
+  {id:'labor',    label:'인건비',           unit:'백만원', type:'input',  planArr:CORP_MON_2026.인건비},
+  {id:'mkt',      label:'마케팅비',         unit:'백만원', type:'input',  planArr:CORP_MON_2026.마케팅비용},
+  {id:'opex',     label:'기타운영비',       unit:'백만원', type:'input',  planArr:CORP_MON_2026.기타운영비},
+  {id:'sgaTot',   label:'판관비 합계',      unit:'백만원', type:'auto',   autoFn:(d,m)=>d.labor[m]+d.mkt[m]+d.opex[m], isTot:true},
+  {id:'sgaRate',  label:'판관비율',         unit:'%',      type:'auto',   autoFn:(d,m)=>d.rev[m]?+((d.labor[m]+d.mkt[m]+d.opex[m])/d.rev[m]*100).toFixed(1):0, isRate:true, goodDir:'down'},
+];
+
+function _mtrackInit() {
+  const d = {};
+  MTRACK_ROWS.forEach(r => {
+    if (r.id && r.type === 'input') d[r.id] = Array(12).fill(0);
+  });
+  return d;
+}
+
+function _mtrackEnsure() {
+  if (!_state.monthlyTrack) _state.monthlyTrack = _mtrackInit();
+  // 필드 추가 보호
+  MTRACK_ROWS.forEach(r => {
+    if (r.id && r.type === 'input' && !_state.monthlyTrack[r.id]) {
+      _state.monthlyTrack[r.id] = Array(12).fill(0);
+    }
+  });
+}
+
+function mtrackFillFromPlan() {
+  _mtrackEnsure();
+  const d = _state.monthlyTrack;
+  MTRACK_ROWS.forEach(r => {
+    if (r.type === 'input' && r.planArr) {
+      d[r.id] = [...r.planArr];
+    }
+  });
+  saveState();
+  renderMonthlyTrack();
+}
+
+function mtrackReset() {
+  if (!confirm('월별 추적 데이터를 모두 초기화합니다. 계속하시겠습니까?')) return;
+  _state.monthlyTrack = _mtrackInit();
+  saveState();
+  renderMonthlyTrack();
+}
+
+function onMtrackInput(id, m, el) {
+  _mtrackEnsure();
+  const raw = el.value.replace(/,/g,'');
+  const val = parseFloat(raw) || 0;
+  _state.monthlyTrack[id][m] = val;
+  el.classList.toggle('edited', val !== 0);
+  saveState();
+  // 자동계산 셀만 업데이트
+  _mtrackUpdateAuto();
+}
+
+function _mtrackUpdateAuto() {
+  const d = _state.monthlyTrack;
+  MTRACK_ROWS.forEach(r => {
+    if (!r.id || r.type !== 'auto') return;
+    const vals = Array.from({length:12}, (_,m) => r.autoFn(d,m));
+    vals.forEach((v, m) => {
+      const cell = document.getElementById(`mtr_auto_${r.id}_${m}`);
+      if (!cell) return;
+      cell.textContent = r.isRate ? v.toFixed(1)+'%' : r.isUnit ? v.toLocaleString('ko-KR') : fmt(v);
+      cell.className = 'mtrack-auto' + (r.isRate ? ' mtrack-rate' : '');
+    });
+    // YTD
+    const ytdEl = document.getElementById(`mtr_ytd_${r.id}`);
+    if (ytdEl) {
+      if (r.isRate) {
+        const sumRev = d.rev ? d.rev.reduce((a,b)=>a+b,0) : 0;
+        let ytdV = 0;
+        if (r.id==='cogsRate') ytdV = sumRev ? +(d.cogs.reduce((a,b)=>a+b,0)/sumRev*100).toFixed(1):0;
+        else if (r.id==='gpRate') ytdV = sumRev ? +((sumRev-d.cogs.reduce((a,b)=>a+b,0))/sumRev*100).toFixed(1):0;
+        else if (r.id==='opRate') ytdV = sumRev ? +(d.op.reduce((a,b)=>a+b,0)/sumRev*100).toFixed(1):0;
+        else if (r.id==='sgaRate') { const sumSga=(d.labor||[]).reduce((a,b)=>a+b,0)+(d.mkt||[]).reduce((a,b)=>a+b,0)+(d.opex||[]).reduce((a,b)=>a+b,0); ytdV=sumRev?+(sumSga/sumRev*100).toFixed(1):0; }
+        ytdEl.textContent = ytdV.toFixed(1)+'%';
+      } else if (r.isUnit) {
+        const sumRev = d.rev ? d.rev.reduce((a,b)=>a+b,0) : 0;
+        const sumCogs = d.cogs ? d.cogs.reduce((a,b)=>a+b,0) : 0;
+        const sumUnits = d.units ? d.units.reduce((a,b)=>a+b,0) : 0;
+        let ytdV = 0;
+        if (r.id==='revPu') ytdV = sumUnits ? Math.round(sumRev*1e6/sumUnits):0;
+        else if (r.id==='cogsPu') ytdV = sumUnits ? Math.round(sumCogs*1e6/sumUnits):0;
+        else if (r.id==='marginPu') ytdV = sumUnits ? Math.round((sumRev-sumCogs)*1e6/sumUnits):0;
+        ytdEl.textContent = ytdV.toLocaleString('ko-KR');
+      } else {
+        ytdEl.textContent = fmt(vals.reduce((a,b)=>a+b,0));
+      }
+    }
+  });
+}
+
+function renderMonthlyTrack() {
+  _mtrackEnsure();
+  const d = _state.monthlyTrack;
+  const el = document.getElementById('mtrack_grid');
+  if (!el) return;
+
+  let html = '<table class="mtrack-tbl"><thead><tr>';
+  html += '<th>항목</th>';
+  MTRACK_MONTHS.forEach(m => html += `<th>${m}</th>`);
+  html += '<th class="mtrack-ytd-hdr">합계/평균</th>';
+  html += '</tr></thead><tbody>';
+
+  MTRACK_ROWS.forEach(r => {
+    if (r.section) {
+      html += `<tr class="mtrack-section"><td colspan="14">${r.section}</td></tr>`;
+      return;
+    }
+    const isTot = r.isTot;
+    html += `<tr${isTot ? ' class="mtrack-total-row"':''}><td>${r.label} <span style="font-size:9px;color:var(--t3)">${r.unit}</span></td>`;
+
+    if (r.type === 'input') {
+      const sum = (d[r.id]||Array(12).fill(0)).reduce((a,b)=>a+b,0);
+      for (let m=0; m<12; m++) {
+        const v = (d[r.id]||[])[m] || 0;
+        html += `<td><input class="mtrack-inp${v!==0?' edited':''}" id="mtr_inp_${r.id}_${m}"
+          value="${v !== 0 ? v.toLocaleString('ko-KR') : ''}"
+          placeholder="0"
+          onfocus="this.select()"
+          onblur="onMtrackInput('${r.id}',${m},this)"
+          onkeydown="if(event.key==='Enter'||event.key==='Tab'){event.preventDefault();mtrackNavCell('${r.id}',${m},event.key==='Tab'&&event.shiftKey?-1:1)}"
+          inputmode="numeric"
+          ></td>`;
+      }
+      html += `<td class="mtrack-ytd-cell" id="mtr_ytd_${r.id}">${fmt(sum)}</td>`;
+    } else {
+      // auto
+      for (let m=0; m<12; m++) {
+        const v = r.autoFn(d, m);
+        const disp = r.isRate ? v.toFixed(1)+'%' : r.isUnit ? v.toLocaleString('ko-KR') : fmt(v);
+        html += `<td><span class="mtrack-auto${r.isRate?' mtrack-rate':''}" id="mtr_auto_${r.id}_${m}">${disp}</span></td>`;
+      }
+      // YTD for auto
+      let ytdDisp = '';
+      if (r.isRate) {
+        const sumRev = (d.rev||[]).reduce((a,b)=>a+b,0);
+        let ytdV = 0;
+        if (r.id==='cogsRate') ytdV = sumRev?+((d.cogs||[]).reduce((a,b)=>a+b,0)/sumRev*100).toFixed(1):0;
+        else if (r.id==='gpRate') ytdV = sumRev?+((sumRev-(d.cogs||[]).reduce((a,b)=>a+b,0))/sumRev*100).toFixed(1):0;
+        else if (r.id==='opRate') ytdV = sumRev?+((d.op||[]).reduce((a,b)=>a+b,0)/sumRev*100).toFixed(1):0;
+        else if (r.id==='sgaRate') { const s=(d.labor||[]).reduce((a,b)=>a+b,0)+(d.mkt||[]).reduce((a,b)=>a+b,0)+(d.opex||[]).reduce((a,b)=>a+b,0); ytdV=sumRev?+(s/sumRev*100).toFixed(1):0; }
+        ytdDisp = ytdV.toFixed(1)+'%';
+      } else if (r.isUnit) {
+        const sumRev=(d.rev||[]).reduce((a,b)=>a+b,0);
+        const sumCogs=(d.cogs||[]).reduce((a,b)=>a+b,0);
+        const sumU=(d.units||[]).reduce((a,b)=>a+b,0);
+        let ytdV=0;
+        if(r.id==='revPu') ytdV=sumU?Math.round(sumRev*1e6/sumU):0;
+        else if(r.id==='cogsPu') ytdV=sumU?Math.round(sumCogs*1e6/sumU):0;
+        else if(r.id==='marginPu') ytdV=sumU?Math.round((sumRev-sumCogs)*1e6/sumU):0;
+        ytdDisp = ytdV.toLocaleString('ko-KR');
+      } else {
+        const s = Array.from({length:12},(_,m2)=>r.autoFn(d,m2)).reduce((a,b)=>a+b,0);
+        ytdDisp = fmt(s);
+      }
+      html += `<td class="mtrack-ytd-cell" id="mtr_ytd_${r.id}">${ytdDisp}</td>`;
+    }
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function mtrackNavCell(id, m, dir) {
+  // Tab 키로 같은 행 다음 월로 이동
+  const nextM = m + dir;
+  if (nextM >= 0 && nextM < 12) {
+    const next = document.getElementById(`mtr_inp_${id}_${nextM}`);
+    if (next) { next.focus(); next.select(); }
+  }
 }
 </script>
 
