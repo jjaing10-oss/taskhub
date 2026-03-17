@@ -326,6 +326,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   <div class="dv"></div>
   <div class="sec">💰 객관리수수료 단가 (원/월)</div>
   <div class="ch-grid" id="fee_grid"></div>
+  <div class="mon-section" style="margin-top:6px">
+    <button class="mon-toggle-btn" id="btn_wf_mon" onclick="toggleMonGrid('mon_wf','btn_wf_mon');if(document.getElementById('mon_wf').classList.contains('open'))buildMonGridWFee()">📅 채널별 월별단가 ▾</button>
+    <div class="mon-grid" id="mon_wf"></div>
+  </div>
 
   <div class="dv"></div>
   <div class="sec">📊 만기도래해지 비중 (Active 대비 월간 %)</div>
@@ -718,6 +722,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="ir"><input type="text" id="dp_tang_base" class="if mono" value="5,602" onchange="runDEP()"><span class="iu">백만/연</span></div>
     <input type="range" id="dps_tang_base" min="2000" max="9000" step="100" value="5602">
   </div>
+  <div class="mon-section" style="margin-top:6px">
+    <button class="mon-toggle-btn" id="btn_dep_tang_mon" onclick="toggleMonGrid('mon_dep_tang','btn_dep_tang_mon');if(document.getElementById('mon_dep_tang').classList.contains('open'))buildMonGridDepTang()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_dep_tang"></div>
+  </div>
   <div class="dv" style="margin:8px 0 6px"></div>
   <div style="font-size:11px;color:var(--or2);margin-bottom:6px">📦 신규 CAPEX 투자 (시설장치)</div>
   <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:4px 6px;font-size:11px;align-items:center;margin-bottom:4px">
@@ -735,6 +743,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="ig-l">기존 잔여상각 기저 <span class="h">26E 소스=434 / 25년=248</span></div>
     <div class="ir"><input type="text" id="dp_sw_base" class="if mono" value="434" onchange="runDEP()"><span class="iu">백만/연</span></div>
     <input type="range" id="dps_sw_base" min="0" max="800" step="10" value="434">
+  </div>
+  <div class="mon-section" style="margin-top:6px">
+    <button class="mon-toggle-btn" id="btn_dep_sw_mon" onclick="toggleMonGrid('mon_dep_sw','btn_dep_sw_mon');if(document.getElementById('mon_dep_sw').classList.contains('open'))buildMonGridDepSw()">📅 월별편집 ▾</button>
+    <div class="mon-grid" id="mon_dep_sw"></div>
   </div>
   <div class="dv" style="margin:8px 0 6px"></div>
   <div style="font-size:11px;color:var(--ac2);margin-bottom:6px">💡 신규 CAPEX 투자 (IT·소프트웨어)</div>
@@ -1535,6 +1547,60 @@ function onMonCellChange(key, m, el, runFn){
 }
 
 // ─── 월별 그리드 빌더 함수들 ─────────────────────────────────────────────
+// 작업 C — 관리수수료 단가 채널별 월별 편집
+// W_FEE_DEF 채널: 도매, 소매, 소상공인, 디지털, 기업, Biz
+function onWFeeChange(key,m,el){
+  // key 형식: wf_<채널>_m  → 채널 추출
+  const ch=key.replace(/^wf_(.+)_m$/,'$1');
+  const v=parseInt(el.value.replace(/,/g,''))||0;
+  el.classList.add('manual');
+  if(!MON_MANUAL.fee_u[ch]) MON_MANUAL.fee_u[ch]=Array(12).fill(null);
+  MON_MANUAL.fee_u[ch][m]=v;
+  onMonCellChange(key,m,el,runW);
+}
+function resetWFeeMon(){
+  Object.keys(W_FEE_DEF).forEach(ch=>{ MON_MANUAL.fee_u[ch]=Array(12).fill(null); });
+  buildMonGridWFee(); runW();
+}
+function buildMonGridWFee(){
+  const items=Object.entries(W_FEE_DEF).map(([ch,defAnn])=>{
+    if(!MON_MANUAL.fee_u[ch]) MON_MANUAL.fee_u[ch]=Array(12).fill(null);
+    const annVal=pv('wf_'+ch)||defAnn;
+    const vals=Array(12).fill(0).map((_,i)=>MON_MANUAL.fee_u[ch][i]!=null?MON_MANUAL.fee_u[ch][i]:annVal);
+    return {key:`wf_${ch}_m`, label:`${ch} (원/월)`, vals, manual:MON_MANUAL.fee_u[ch]};
+  });
+  buildMonGrid('mon_wf', items, 'onWFeeChange', 'resetWFeeMon');
+}
+
+// 작업 F — 감가상각 기저 월별 편집
+// 유형자산 (DEP_TANG_SEASON 패턴: 분기말 집중)
+function onDepTangChange(key,m,el){ onMonCellChange(key,m,el,runDEP); }
+function onDepSwChange(key,m,el){   onMonCellChange(key,m,el,runDEP); }
+function resetDepTangMon(){ if(!MON_MANUAL.dep)MON_MANUAL.dep={}; MON_MANUAL.dep.tang=Array(12).fill(null); buildMonGridDepTang(); runDEP(); }
+function resetDepSwMon(){   if(!MON_MANUAL.dep)MON_MANUAL.dep={}; MON_MANUAL.dep.sw=Array(12).fill(null);   buildMonGridDepSw();   runDEP(); }
+function buildMonGridDepTang(){
+  if(!MON_MANUAL.dep) MON_MANUAL.dep={};
+  if(!MON_MANUAL.dep.tang) MON_MANUAL.dep.tang=Array(12).fill(null);
+  const ann=pv('dp_tang_base')||5602;
+  // 기본값: DEP_TANG_SEASON 패턴으로 배분
+  const defV=DEP_TANG_SEASON.map(v=>Math.round(v/DEP_TANG_SEASON_T*ann));
+  defV[11]+=ann-defV.reduce((a,b)=>a+b,0);
+  const vals=defV.map((v,i)=>MON_MANUAL.dep.tang[i]!=null?MON_MANUAL.dep.tang[i]:v);
+  buildMonGrid('mon_dep_tang',[{key:'dep_tang_m',label:'유형자산 기저상각 (백만원)',vals,manual:MON_MANUAL.dep.tang}],'onDepTangChange','resetDepTangMon');
+}
+function buildMonGridDepSw(){
+  if(!MON_MANUAL.dep) MON_MANUAL.dep={};
+  if(!MON_MANUAL.dep.sw) MON_MANUAL.dep.sw=Array(12).fill(null);
+  const ann=pv('dp_sw_base')||434;
+  // 기본값: DEP_SW_SRC 패턴으로 배분
+  const DEF_SW_SRC=[20,20,20,25,25,25,25,25,42,68,68,68];
+  const DEF_SW_TOT=DEF_SW_SRC.reduce((a,b)=>a+b,0);
+  const defV=DEF_SW_SRC.map(v=>Math.round(v/DEF_SW_TOT*ann));
+  defV[11]+=ann-defV.reduce((a,b)=>a+b,0);
+  const vals=defV.map((v,i)=>MON_MANUAL.dep.sw[i]!=null?MON_MANUAL.dep.sw[i]:v);
+  buildMonGrid('mon_dep_sw',[{key:'dep_sw_m',label:'소프트웨어 기저상각 (백만원)',vals,manual:MON_MANUAL.dep.sw}],'onDepSwChange','resetDepSwMon');
+}
+
 // PL 월별 직접조정 (작업 G)
 function onPlAdjChange(key,m,el){ onMonCellChange(key,m,el,runPL); }
 function resetPlAdjMon(){
@@ -2196,7 +2262,9 @@ function simWireless(){
       // 관리수수료 계산: 소스 Active × CAPA 스케일
       const scaledActive=Math.round((srcActive[m]||stock)*capaScale);
       active[ch].push(scaledActive);
-      관리수수료[ch].push(Math.round(scaledActive*fee[ch]/1000000*100)/100);
+      // 월별 단가 우선 사용 (작업 C: MON_MANUAL.fee_u 수동 입력 시)
+      const feeM=(MON_MANUAL.fee_u[ch]&&MON_MANUAL.fee_u[ch][m]!=null)?MON_MANUAL.fee_u[ch][m]:fee[ch];
+      관리수수료[ch].push(Math.round(scaledActive*feeM/1000000*100)/100);
     }
   }
 
@@ -3490,9 +3558,14 @@ function simDepre(){
   const sw_base   = pv('dp_sw_base');    // 소프트웨어 기저 연간
   const dist_dep  = pv('dp_dist_dep');   // 유통플랫폼 상각
 
-  // === 유형자산 기저 — 분기말 처리 패턴 그대로 스케일 ===
-  const tang_base_mon = DEP_TANG_SEASON.map(v=>Math.round(v/DEP_TANG_SEASON_T*tang_base));
-  tang_base_mon[11] += tang_base - tang_base_mon.reduce((a,b)=>a+b,0);
+  // === 유형자산 기저 — 분기말 처리 패턴 (월별 수동입력 우선, 작업 F) ===
+  const _depTangMon=(MON_MANUAL.dep&&MON_MANUAL.dep.tang)||Array(12).fill(null);
+  const tang_base_mon = DEP_TANG_SEASON.map((v,m)=>{
+    if(_depTangMon[m]!=null) return _depTangMon[m];
+    return Math.round(v/DEP_TANG_SEASON_T*tang_base);
+  });
+  // null이 없을 때만 LRM 조정 (수동 입력 시 합계 우선)
+  if(_depTangMon.every(v=>v==null)) tang_base_mon[11] += tang_base - tang_base_mon.reduce((a,b)=>a+b,0);
 
   // === 신규 CAPEX 상각 계산 ===
   // 시설장치: 분기말에 몰아 처리 (취득월 포함 분기말부터)
@@ -3512,14 +3585,19 @@ function simDepre(){
     tang_new_mon[11] += Math.round(monthly_dep * Math.min(3, 12 - startQ_idx));
   });
 
-  // === 소프트웨어: 취득 다음 달부터 매월 균등 상각 ===
-  // === 소프트웨어: 소스 패턴 기반 LRM 배분 ===
+  // === 소프트웨어: 소스 패턴 기반 LRM 배분 (월별 수동입력 우선, 작업 F) ===
   const DEP_SW_SRC=[20,20,20,25,25,25,25,25,42,68,68,68];
   const DEP_SW_TOT=DEP_SW_SRC.reduce((a,b)=>a+b,0);
-  const sw_raw=DEP_SW_SRC.map(v=>v*sw_base/DEP_SW_TOT);
-  const sw_base_mon=sw_raw.map(v=>Math.floor(v));
-  const sw_rem=Math.round(sw_base)-sw_base_mon.reduce((a,b)=>a+b,0);
-  sw_raw.map((v,i)=>({i,f:v-Math.floor(v)})).sort((a,b)=>b.f-a.f).slice(0,sw_rem).forEach(x=>sw_base_mon[x.i]++);
+  const _depSwMon=(MON_MANUAL.dep&&MON_MANUAL.dep.sw)||Array(12).fill(null);
+  const sw_base_mon=DEP_SW_SRC.map((v,m)=>{
+    if(_depSwMon[m]!=null) return _depSwMon[m];
+    return Math.floor(v*sw_base/DEP_SW_TOT);
+  });
+  if(_depSwMon.every(v=>v==null)){
+    const sw_raw=DEP_SW_SRC.map(v=>v*sw_base/DEP_SW_TOT);
+    const sw_rem=Math.round(sw_base)-sw_base_mon.reduce((a,b)=>a+b,0);
+    sw_raw.map((v,i)=>({i,f:v-Math.floor(v)})).sort((a,b)=>b.f-a.f).slice(0,sw_rem).forEach(x=>sw_base_mon[x.i]++);
+  }
 
   const sw_new_mon = Array(12).fill(0);
   _swRows.forEach(r=>{
