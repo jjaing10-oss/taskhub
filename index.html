@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>KT M&S Wireless Dashboard</title>
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<h2>무선 시뮬레이터 (실전 구조)</h2>
+
+<table>
+<thead>
+<tr>
+<th>월</th>
+<th>상품매출</th>
+<th>정책수수료</th>
+<th>관리수수료</th>
+<th>판매수수료</th>
+<th>판촉비</th>
+</tr>
+</thead>
+<tbody id="wireless-body"></tbody>
+</table>
+
+<script src="./js/calc.js"></script>
+<script src="./js/render.js"></script>
+<script>
+fetch('./data/wireless_v2.json')
+  .then(res => res.json())
+  .then(data => {
+    const result = calcWireless(data.wireless);
+    renderTable(result);
+  });
+</script>
+
+</body>
+</html>
