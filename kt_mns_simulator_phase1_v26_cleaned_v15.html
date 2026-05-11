@@ -8155,7 +8155,12 @@ function renderEmp(){
   tb.innerHTML=html;
 }
 
-// ② 영업직 급여
+    // 1) 월별 직접 입력값이 있으면 우선 사용 (탭 내 모든 수치 수동 수정 지원)
+    if (Array.isArray(lb.특별격려금) && lb.특별격려금.some(v => (parseFloat(v)||0) !== 0)) {
+      return lb.특별격려금.map(v => parseFloat(v) || 0);
+    }
+    // 2) 월/금액 단일 파라미터가 있으면 해당 월 1회 반영
+  html+=makeLaborRow('특별격려금', LB0.특별격려금, _spgB, _spgC, 'input', 'input', '_lbB(\'특별격려금\')', '_lbC(\'특별격려금\')',
 function renderEngPay(){
   const th=document.getElementById('th-eng-pay'), tb=document.getElementById('tb-eng-pay');
   if(!th||!tb) return;
@@ -8713,15 +8718,35 @@ function renderInfraPanel(){
       const cells = arr.map((v,i)=>{
         if(mode==='input'){
           return `<td style="padding:2px;"><input type="number" step="0.5" value="${v}" style="width:56px;padding:3px 4px;border:1px solid #B4C7E7;border-radius:3px;background:#FFFCF0;text-align:right;font-family:var(--font-num);font-size:11px;" onchange="${cbPrefix}(${i},this.value)"></td>`;
-        } else {
-          return `<td style="padding:4px 6px;text-align:right;font-family:var(--font-num);color:#666;font-size:11px;background:#F4F6F9;">${v.toFixed(1)}</td>`;
-        }
-      }).join('');
-      return `<tr><td style="padding:5px 8px;font-weight:600;">${label}</td>${cells}<td style="padding:5px 8px;text-align:right;font-family:var(--font-num);font-weight:600;">${avg(arr)}</td></tr>`;
-    };
-    tbStores.innerHTML = 
-      row('A (26 목표)', sA, 'calc', '') +
-      row('B (26 예측)', s26, 'input', '_infraStoreB') +
+function _lbEngB(){ return (i,v)=>{ if(!STATE.year26.labor.영업직급여) STATE.year26.labor.영업직급여=deepCopy(LB0.영업직급여); STATE.year26.labor.영업직급여[parseInt(i)]=parseInt(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
+function _lbEngC(){ return (i,v)=>{ if(!STATE.year27.labor.영업직급여) STATE.year27.labor.영업직급여=deepCopy(LB0.영업직급여); STATE.year27.labor.영업직급여[parseInt(i)]=parseInt(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
+function _lbGenB(){ return (i,v)=>{ if(!STATE.year26.labor.일반직급여) STATE.year26.labor.일반직급여=deepCopy(LB0.일반직급여); STATE.year26.labor.일반직급여[parseInt(i)]=parseInt(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
+function _lbGenC(){ return (i,v)=>{ if(!STATE.year27.labor.일반직급여) STATE.year27.labor.일반직급여=deepCopy(LB0.일반직급여); STATE.year27.labor.일반직급여[parseInt(i)]=parseInt(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
+function _syncSpgAcrossTabs(){
+  renderLabor();
+  if(typeof renderSummary==='function') renderSummary();
+  if(typeof renderTelco==='function') renderTelco();
+  if(typeof renderWireless==='function') renderWireless();
+  if(typeof renderWireline==='function') renderWireline();
+  if(typeof renderDistribution==='function') renderDistribution();
+  if(typeof renderCostDetail==='function') renderCostDetail();
+  if(typeof renderScenario==='function') renderScenario();
+}
+function onSpgMonthChange(v){
+  _spgPendingMonth = parseInt(v);
+  STATE.year27.labor.격려금월 = _spgPendingMonth;
+  STATE.year27.labor.격려금액 = _spgPendingAmt;
+  _syncSpgAcrossTabs();
+  saveState();
+}
+function onSpgAmtChange(v){
+  _spgPendingAmt = parseFloat(v) || 0;
+  STATE.year27.labor.격려금월 = _spgPendingMonth;
+  STATE.year27.labor.격려금액 = _spgPendingAmt;
+  _syncSpgAcrossTabs();
+  saveState();
+}
+  _syncSpgAcrossTabs();
       row('C (27 예측)', s27, 'input', '_infraStoreC');
   }
   
@@ -10149,7 +10174,9 @@ function _computeWirelessSalesChain(yr, isYear26, isYear27){
   if(isYear27) return calc27WirelessCapaAll();
   if(isYear26){
     const m = {};
-    ['도매','소매','소상공인','kt닷컴','기업','Biz'].forEach(ch => { m[ch] = calc26WirelessCapa(ch); });
+  if (Array.isArray(LB.특별격려금) && LB.특별격려금.some(v => (parseFloat(v)||0) !== 0)) {
+    spg = LB.특별격려금.map(v => parseFloat(v) || 0);
+  } else if (LB.격려금월 != null && LB.격려금액 != null) {
     return m;
   }
   return yr.wireless.sales;
