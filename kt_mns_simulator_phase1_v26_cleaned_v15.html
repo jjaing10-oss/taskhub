@@ -5640,7 +5640,7 @@ function updateHUD(preCalc){
       const bMgmt = sum(b26.관리수수료||[]);
       const cMgmt = sum(c27.관리수수료||[]);
       setHUD('hud-tc-mgmt-a', aMgmt);
-      setHUD('hud-tc-mgmt-b', bMgmt);
+    const b = (typeof window.calcSummaryData==='function' && window.STATE) ? window.calcSummaryData(window.STATE.year26) : null;
       setHUD('hud-tc-mgmt-c', cMgmt);
       const gMgmtBA = gapSpan(gapPct(aMgmt, bMgmt)), gMgmtBC = gapSpan(gapPct(bMgmt, cMgmt));
       if($('hud-tc-mgmt-ba')){ const el=$('hud-tc-mgmt-ba'); el.textContent='A비 '+gMgmtBA.txt; el.className='hud-gap '+gMgmtBA.cls; }
@@ -8155,7 +8155,12 @@ function renderEmp(){
   tb.innerHTML=html;
 }
 
-// ② 영업직 급여
+    // 1) 월별 직접 입력값이 있으면 우선 사용 (탭 내 모든 수치 수동 수정 지원)
+    if (Array.isArray(lb.특별격려금) && lb.특별격려금.some(v => (parseFloat(v)||0) !== 0)) {
+      return lb.특별격려금.map(v => parseFloat(v) || 0);
+    }
+    // 2) 월/금액 단일 파라미터가 있으면 해당 월 1회 반영
+  html+=makeLaborRow('특별격려금', LB0.특별격려금, _spgB, _spgC, 'input', 'input', '_lbB(\'특별격려금\')', '_lbC(\'특별격려금\')',
 function renderEngPay(){
   const th=document.getElementById('th-eng-pay'), tb=document.getElementById('tb-eng-pay');
   if(!th||!tb) return;
@@ -8571,8 +8576,8 @@ function renderMgmtBasic(){
     const dB=calcMgmtBasicRow(active26[ch], um[ch]);
     const dC=calcMgmtBasicRow(active27[ch], um[ch]);
     dA.forEach((_,i)=>{tA[i]+=dA[i];tB[i]+=dB[i];tC[i]+=dC[i];});
-    const badge=`<span style="font-size:9px;background:var(--cell-calc);color:var(--text-muted);padding:1px 4px;border-radius:3px;margin-left:3px;">${fmt(um[ch])}원/명</span>`;
-    html+=makeRow(COLORS[ch]||'#888',ch,dA,dB,dC,'calc','calc','','',badge);
+function _lbB(key){ return (i,v)=>{ if(!Array.isArray(STATE.year26.labor[key])) STATE.year26.labor[key]=Array(12).fill(0); STATE.year26.labor[key][parseInt(i)]=parseFloat(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
+function _lbC(key){ return (i,v)=>{ if(!Array.isArray(STATE.year27.labor[key])) STATE.year27.labor[key]=Array(12).fill(0); STATE.year27.labor[key][parseInt(i)]=parseFloat(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
   });
   // 본사공통 행 (고정)
   const hA=BASE_26.wireless.mgmtExtra.hongsa;
@@ -8713,15 +8718,35 @@ function renderInfraPanel(){
       const cells = arr.map((v,i)=>{
         if(mode==='input'){
           return `<td style="padding:2px;"><input type="number" step="0.5" value="${v}" style="width:56px;padding:3px 4px;border:1px solid #B4C7E7;border-radius:3px;background:#FFFCF0;text-align:right;font-family:var(--font-num);font-size:11px;" onchange="${cbPrefix}(${i},this.value)"></td>`;
-        } else {
-          return `<td style="padding:4px 6px;text-align:right;font-family:var(--font-num);color:#666;font-size:11px;background:#F4F6F9;">${v.toFixed(1)}</td>`;
-        }
-      }).join('');
-      return `<tr><td style="padding:5px 8px;font-weight:600;">${label}</td>${cells}<td style="padding:5px 8px;text-align:right;font-family:var(--font-num);font-weight:600;">${avg(arr)}</td></tr>`;
-    };
-    tbStores.innerHTML = 
-      row('A (26 목표)', sA, 'calc', '') +
-      row('B (26 예측)', s26, 'input', '_infraStoreB') +
+function _lbEngB(){ return (i,v)=>{ if(!STATE.year26.labor.영업직급여) STATE.year26.labor.영업직급여=deepCopy(LB0.영업직급여); STATE.year26.labor.영업직급여[parseInt(i)]=parseInt(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
+function _lbEngC(){ return (i,v)=>{ if(!STATE.year27.labor.영업직급여) STATE.year27.labor.영업직급여=deepCopy(LB0.영업직급여); STATE.year27.labor.영업직급여[parseInt(i)]=parseInt(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
+function _lbGenB(){ return (i,v)=>{ if(!STATE.year26.labor.일반직급여) STATE.year26.labor.일반직급여=deepCopy(LB0.일반직급여); STATE.year26.labor.일반직급여[parseInt(i)]=parseInt(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
+function _lbGenC(){ return (i,v)=>{ if(!STATE.year27.labor.일반직급여) STATE.year27.labor.일반직급여=deepCopy(LB0.일반직급여); STATE.year27.labor.일반직급여[parseInt(i)]=parseInt(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
+function _syncSpgAcrossTabs(){
+  renderLabor();
+  if(typeof renderSummary==='function') renderSummary();
+  if(typeof renderTelco==='function') renderTelco();
+  if(typeof renderWireless==='function') renderWireless();
+  if(typeof renderWireline==='function') renderWireline();
+  if(typeof renderDistribution==='function') renderDistribution();
+  if(typeof renderCostDetail==='function') renderCostDetail();
+  if(typeof renderScenario==='function') renderScenario();
+}
+function onSpgMonthChange(v){
+  _spgPendingMonth = parseInt(v);
+  STATE.year27.labor.격려금월 = _spgPendingMonth;
+  STATE.year27.labor.격려금액 = _spgPendingAmt;
+  _syncSpgAcrossTabs();
+  saveState();
+}
+function onSpgAmtChange(v){
+  _spgPendingAmt = parseFloat(v) || 0;
+  STATE.year27.labor.격려금월 = _spgPendingMonth;
+  STATE.year27.labor.격려금액 = _spgPendingAmt;
+  _syncSpgAcrossTabs();
+  saveState();
+}
+  _syncSpgAcrossTabs();
       row('C (27 예측)', s27, 'input', '_infraStoreC');
   }
   
@@ -10149,7 +10174,9 @@ function _computeWirelessSalesChain(yr, isYear26, isYear27){
   if(isYear27) return calc27WirelessCapaAll();
   if(isYear26){
     const m = {};
-    ['도매','소매','소상공인','kt닷컴','기업','Biz'].forEach(ch => { m[ch] = calc26WirelessCapa(ch); });
+  if (Array.isArray(LB.특별격려금) && LB.특별격려금.some(v => (parseFloat(v)||0) !== 0)) {
+    spg = LB.특별격려금.map(v => parseFloat(v) || 0);
+  } else if (LB.격려금월 != null && LB.격려금액 != null) {
     return m;
   }
   return yr.wireless.sales;
@@ -25544,8 +25571,15 @@ async function runNarrativeAnalysis(opts) {
 
 
 <!-- V8: 임원용 보고서 수익/비용 항목 관점 상세 설명 강화 -->
-<style id="v8-exec-detail-style">
-.v8-report .cover{background:linear-gradient(135deg,#10284D 0%,#1F3864 48%,#273B72 100%);color:#fff;border-radius:18px;padding:34px 36px;margin-bottom:18px;box-shadow:0 18px 40px rgba(16,40,77,.24)}
+<script id="compat-global-shim">
+(function(){
+  if(typeof window.STATE==='undefined') window.STATE = {};
+  if(typeof window.calcSummaryData!=='function') window.calcSummaryData = function(){ return {}; };
+  if(typeof window.switchTab!=='function') window.switchTab = function(){};
+})();
+</script>
+  function d26(){ return safe(function(){ return (typeof window.calcSummaryData==='function' && window.STATE) ? (window.calcSummaryData(window.STATE.year26)||{}) : {}; },{}); }
+  function d27(){ return safe(function(){ return (typeof window.calcSummaryData==='function' && window.STATE) ? (window.calcSummaryData(window.STATE.year27)||{}) : {}; },{}); }
 .v8-report .cover h1{font-size:28px;margin:0 0 8px;font-weight:900;letter-spacing:-.8px}.v8-report .cover p{font-size:13px;opacity:.82;margin:0;line-height:1.6}
 .v8-report .section{background:#fff;border:1px solid #E1E7F0;border-radius:16px;padding:22px 24px;margin:16px 0;box-shadow:0 6px 18px rgba(31,56,100,.06);break-inside:avoid}
 .v8-report .section h2{font-size:17px;color:#1F3864;margin:0 0 14px;font-weight:900;display:flex;align-items:center;gap:8px}.v8-report .section h3{font-size:13px;color:#1F3864;margin:16px 0 8px;font-weight:800}
@@ -26464,9 +26498,9 @@ async function runNarrativeAnalysis(opts) {
     var m=document.getElementById('v19-report-modal'); if(m) return m;
     m=document.createElement('div'); m.id='v19-report-modal'; m.className='v19-modal';
     m.innerHTML='<div class="v19-modal-box"><div class="v19-modal-head"><div class="v19-head-row"><div><div class="v19-title" id="v19-report-title">KT M&S 보고서 센터</div><div class="v19-sub">CAPA가 매출·수수료·비용·영업이익으로 전환되는 흐름을 한 화면에서 설명합니다.</div></div><div class="v19-actions"><button onclick="window._v19Print()">🖨 인쇄/PDF</button><button onclick="window._v19ExportExcel()">📊 Excel</button><button onclick="window._v19CloseReport()">닫기</button></div></div><div class="v19-tabs"><button data-tab="exec" onclick="window._v19ShowTab(\'exec\')">📋 임원요약</button><button data-tab="detail" onclick="window._v19ShowTab(\'detail\')">🧾 수익/비용 상세</button><button data-tab="monthly" onclick="window._v19ShowTab(\'monthly\')">📅 월별 시나리오</button><button data-tab="capa" onclick="window._v19ShowTab(\'capa\')">📡 CAPA·수수료</button><button data-tab="manual" onclick="window._v19ShowTab(\'manual\')">📘 매뉴얼</button></div></div><div class="v19-body" id="v19-report-body"></div></div>';
-    m.addEventListener('click',function(e){ if(e.target===m) window._v19CloseReport(); });
-    document.body.appendChild(m); return m;
-  }
+  const nval = (v)=>{ const n = Number(String((v==null?'':v)).replace(/,/g,'')); return Number.isFinite(n) ? n : null; };
+    const goalRev = (t.전사_매출!=null ? t.전사_매출 : cur.corpRev);
+    const goalOpi = (t.전사_영업이익!=null ? t.전사_영업이익 : cur.corpOpi);
   function itemRow(label,key,type,logic,monthNote,A){
     var h=A.history||{}, y24=(h.year24||{})[key]||0, y25=(h.year25||{})[key]||0, b=A.pnl.b[key]||0, c=A.pnl.c[key]||0, d=c-b;
     return '<tr><td><b>'+label+'</b><br><span class="v19-pill '+(type==='수익'?'green':type==='비용'?'red':'yellow')+'">'+type+'</span></td><td class="num">'+fmt(y24)+'</td><td class="num">'+fmt(y25)+'</td><td class="num">'+fmt(b)+'</td><td class="num">'+fmt(c)+'</td><td class="num '+cls(d)+'">'+delta(d)+'<br><small>'+pp(pct(b,c))+'</small></td><td>'+logic+'</td><td>'+monthNote+'</td></tr>';
@@ -26691,11 +26725,11 @@ async function runNarrativeAnalysis(opts) {
     setStatus(`<b>적용 결과 검증</b>${table}<div style="margin-top:6px;">${sanity.length?sanity.map(x=>`<span class="v21-chip bad" style="margin:2px;white-space:normal">⚠ ${x}</span>`).join(''):'<span class="v21-chip ok">음수 매출/과도 OPM 등 1차 이상 없음</span>'}</div>${historyHtml()}`, sanity.length?'warn':'ok');
   }
   function historyHtml(){
-    let h=[]; try{ h=JSON.parse(localStorage.getItem(V21_KEY)||'[]'); }catch(e){}
-    if(!h.length) return '<div class="v21-history">적용 이력 없음</div>';
-    return `<div class="v21-history"><b>최근 적용 이력</b><br>${h.slice(-3).reverse().map(x=>`· ${x.ts} · 전사매출 ${fmt(x.targets?.전사_매출)} · 전사OPI ${fmt(x.targets?.전사_영업이익)} · 적용후 OPI ${fmt(x.result?.corpOpi)}`).join('<br>')}</div>`;
-  }
-  function saveHistory(reason){
+  function nval(v){ const n=Number(String((v==null?'':v)).replace(/,/g,'')); return Number.isFinite(n)?n:null; }
+  function cur(){ return core(window.STATE?window.STATE.year27:null); }
+  function base26(){ return core(window.STATE?window.STATE.year26:null); }
+  function base26Capa(){ let w={},wl={}; try{ w=channelTotals((window.STATE&&window.STATE.year26&&window.STATE.year26.wireless&&window.STATE.year26.wireless.sales)||{}); }catch(e){} try{ if(typeof calc26WirelineCapaAll==='function') wl=channelTotals(calc26WirelineCapaAll()); else wl=channelTotals((window.STATE&&window.STATE.year26&&window.STATE.year26.wireline&&window.STATE.year26.wireline.sales)||{}); }catch(e){ wl=channelTotals((window.STATE&&window.STATE.year26&&window.STATE.year26.wireline&&window.STATE.year26.wireline.sales)||{}); } return {w,wl}; }
+    const goalRev=(t.전사_매출!=null?t.전사_매출:c.corpRev); const goalOpi=(t.전사_영업이익!=null?t.전사_영업이익:c.corpOpi); if(goalRev>0 && Math.abs(goalOpi/goalRev)>0.08){msgs.push(['warn','전사 OPM ±8% 초과. 목표 수익성 현실성 점검 필요.']); if(severity==='ok') severity='warn';}
     try{
       const h=JSON.parse(localStorage.getItem(V21_KEY)||'[]');
       const cur=getCore();
@@ -26769,9 +26803,9 @@ async function runNarrativeAnalysis(opts) {
   - 현재 C27 / 26B 값 불러오기, 입력 지우기
   - 안전 적용 버튼: 적용 전 경고 확인 → 적용 후 검증
 ════════════════════════════════════════════════════════════════ -->
-<style id="v22-plug-usability-css">
-  .v22-legacy-plug-actions{display:none!important;}
-  .v22-coach{margin-top:8px;border:1px solid rgba(255,224,130,.28);background:linear-gradient(180deg,rgba(255,224,130,.09),rgba(0,0,0,.18));border-radius:10px;overflow:hidden;color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.12)}
+    const t = clone((((window.STATE||{}).drivers27||{}).mgmtPlug||{}).targets || {});
+    const d = (typeof window.calcSummaryData==='function' && window.STATE) ? window.calcSummaryData(window.STATE.year27) : null;
+    const b = (typeof window.calcSummaryData==='function' && window.STATE) ? window.calcSummaryData(window.STATE.year26) : null;
   .v22-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;background:rgba(0,0,0,.20);border-bottom:1px solid rgba(255,255,255,.10)}
   .v22-title{font-size:11px;font-weight:950;color:#FFE082;display:flex;align-items:center;gap:6px;letter-spacing:-.2px;white-space:nowrap}
   .v22-score{display:flex;align-items:center;gap:7px;min-width:230px;justify-content:flex-end;flex:1}
@@ -26845,16 +26879,16 @@ async function runNarrativeAnalysis(opts) {
     const t=d.t, c=d.c||{};
     const bridgeRows=[
       ['전사 매출',c.corpRev,t.전사_매출],['전사 OPI',c.corpOpi,t.전사_영업이익],['통신 OPI',c.telcoOpi,t.통신_영업이익],['유통 OPI',c.distOpi,t.유통_영업이익]
-    ].map(([n,now,goal])=>`<tr><td>${n}</td><td>${fmt(now)}</td><td>${goal===undefined?'<span class="v22-chip info">자동</span>':fmt(goal)}</td><td>${goal===undefined?'—':fmt(goal-now)}</td></tr>`).join('');
-    $('v22-next').innerHTML=`<b>다음 행동</b><br>${d.next}<div class="v22-chips">${msgHtml}</div>`;
-    $('v22-impact').innerHTML=`<h4>목표 입력 영향 요약 <span class="v22-chip ${d.severity==='bad'?'bad':d.severity==='warn'?'warn':'ok'}">${d.severity==='bad'?'위험':d.severity==='warn'?'주의':'정상'}</span></h4><table class="v22-mini"><thead><tr><th>항목</th><th>현재 C27</th><th>입력목표</th><th>차이</th></tr></thead><tbody>${bridgeRows}</tbody></table>`;
+    if(!window.STATE) return; list.unshift({name,ts:nowStr(),drivers27:clone(window.STATE.drivers27),targets:getTargetsEffective(),metrics:m});
+    if(!window.STATE) return; window.STATE.drivers27=clone(item.drivers27);
+    pushLog('저장 시나리오 불러오기',null,clone((window.STATE||{}).drivers27));
   }
-  function clearInputs(){ if(!confirm('27년 플러그 입력칸을 모두 비울까요? 이미 적용된 드라이버까지 초기화하려면 별도로 27년 리셋을 눌러야 합니다.')) return; allKeys.forEach(k=>set(k,'')); renderCoach(); if(window._v21ShowPlugPreview) window._v21ShowPlugPreview(); }
-  function fillCurrent(){ setFinancialFrom(cur()); setCapaFrom(currentCapa()); renderCoach(); if(window._v21ShowPlugPreview) window._v21ShowPlugPreview(); }
-  function fillBase26(){ setFinancialFrom(base26()); setCapaFrom(base26Capa()); renderCoach(); if(window._v21ShowPlugPreview) window._v21ShowPlugPreview(); }
-  function safeApply(){ const d=diagnostics(); if(window._v21ShowPlugPreview) window._v21ShowPlugPreview(); if(d.severity==='bad'){ if(!confirm('위험 경고가 있습니다. 그래도 목표 적용을 진행할까요?\n\n- 통신 매출 음수 가능성\n- OPI만 단독 입력\n- 전사/부문 합계 불일치 등을 확인하세요.')) return; } else if(d.severity==='warn'){ if(!confirm('주의 경고가 있습니다. 미리보기 내용을 확인했다면 적용을 진행하세요. 계속할까요?')) return; } window.applyMgmtPlug(); setTimeout(()=>{ renderCoach(); if(window._v21ShowPlugVerify) window._v21ShowPlugVerify(); },160); }
-  function runDiag(){ if(typeof window._showDriverDiag==='function') window._showDriverDiag(); else alert('진단 함수가 연결되어 있지 않습니다.'); }
-  function reset27(){ if(typeof window._resetDrivers27WithConfirm==='function') window._resetDrivers27WithConfirm(); else alert('27년 리셋 함수가 연결되어 있지 않습니다.'); setTimeout(renderCoach,200); }
+    if(!window.STATE) return; window.STATE.drivers27=clone(item.before);
+    pushLog('직전 적용 되돌리기',null,clone((window.STATE||{}).drivers27));
+        const before=clone((window.STATE||{}).drivers27);
+        setTimeout(()=>pushLog('목표 적용',before,clone((window.STATE||{}).drivers27)),220);
+        const before=clone((window.STATE||{}).drivers27);
+        setTimeout(()=>pushLog('고급 역산',before,clone((window.STATE||{}).drivers27)),260);
   function inject(){ const v21=$('v21-plug-ux'); if(!v21 || $('v22-coach')) return; const legacy=$('mgmt-plug-info')?.previousElementSibling; if(legacy && legacy.querySelector && legacy.querySelector('button[onclick="applyMgmtPlug()"]')) legacy.classList.add('v22-legacy-plug-actions'); const p=document.createElement('div'); p.id='v22-coach'; p.className='v22-coach'; p.innerHTML=`<div class="v22-top"><div class="v22-title">🧩 플러그 조작센터 · 실무형</div><div class="v22-score"><span id="v22-score-text" class="v22-score-text">입력 완성도 0%</span><div class="v22-bar"><div id="v22-fill" class="v22-fill"></div></div></div></div><div class="v22-body"><div class="v22-card"><h4>빠른 작업</h4><div class="v22-actions"><button class="v22-btn blue" onclick="_v22FillCurrentPlug()">현재 C27 불러오기</button><button class="v22-btn blue" onclick="_v22Fill26BPlug()">26B 기준 불러오기</button><button class="v22-btn ghost" onclick="_v22ClearPlugInputs()">입력 지우기</button><button class="v22-btn warn" onclick="_v21ShowPlugPreview&&_v21ShowPlugPreview();_v22RenderCoach();">미리보기</button><button class="v22-btn primary" onclick="_v22SafeApplyPlug()">안전 적용</button><button class="v22-btn ghost" onclick="_v21ShowPlugVerify&&_v21ShowPlugVerify();_v22RenderCoach();">검증</button><button class="v22-btn ghost" onclick="_v22RunDriverDiag()">드라이버 진단</button><button class="v22-btn warn" onclick="reverseEngineerDrivers()">고급 역산</button><button class="v22-btn ghost" onclick="_v22Reset27Drivers()">27년 리셋</button></div><div class="v22-quick-note"><b>노란 테두리</b>=필수 목표, <b>파란 테두리</b>=CAPA, <b>초록 테두리</b>=상세 수익 입력. 기존 작은 버튼은 숨기고 이 조작센터로 통합했습니다.</div><div id="v22-next" class="v22-next" style="margin-top:7px"></div></div><div id="v22-impact" class="v22-card"></div></div>`; v21.insertAdjacentElement('afterend',p); fieldStyle(); allKeys.forEach(k=>{ const el=inp(k); if(el) el.addEventListener('input',()=>{ clearTimeout(window._v22PlugTimer); window._v22PlugTimer=setTimeout(renderCoach,180); }); }); renderCoach(); }
   window._v22FillCurrentPlug=fillCurrent; window._v22Fill26BPlug=fillBase26; window._v22ClearPlugInputs=clearInputs; window._v22SafeApplyPlug=safeApply; window._v22RenderCoach=renderCoach; window._v22RunDriverDiag=runDiag; window._v22Reset27Drivers=reset27;
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(inject,120)); else setTimeout(inject,120);
