@@ -8576,8 +8576,8 @@ function renderMgmtBasic(){
     const dB=calcMgmtBasicRow(active26[ch], um[ch]);
     const dC=calcMgmtBasicRow(active27[ch], um[ch]);
     dA.forEach((_,i)=>{tA[i]+=dA[i];tB[i]+=dB[i];tC[i]+=dC[i];});
-    const badge=`<span style="font-size:9px;background:var(--cell-calc);color:var(--text-muted);padding:1px 4px;border-radius:3px;margin-left:3px;">${fmt(um[ch])}원/명</span>`;
-    html+=makeRow(COLORS[ch]||'#888',ch,dA,dB,dC,'calc','calc','','',badge);
+function _lbB(key){ return (i,v)=>{ if(!Array.isArray(STATE.year26.labor[key])) STATE.year26.labor[key]=Array(12).fill(0); STATE.year26.labor[key][parseInt(i)]=parseFloat(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
+function _lbC(key){ return (i,v)=>{ if(!Array.isArray(STATE.year27.labor[key])) STATE.year27.labor[key]=Array(12).fill(0); STATE.year27.labor[key][parseInt(i)]=parseFloat(v)||0; renderLabor(); if(typeof renderSummary==='function') renderSummary(); saveState(); }; }
   });
   // 본사공통 행 (고정)
   const hA=BASE_26.wireless.mgmtExtra.hongsa;
